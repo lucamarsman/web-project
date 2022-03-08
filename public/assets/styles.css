@@ -1,0 +1,108 @@
+body{
+    background-image: url('bg1.png');
+    background-size: 100%;
+    position:absolute;
+    left:0px; 
+    right:0px; 
+    top:0px; 
+    bottom:0px;
+}
+
+#main-nav {
+    background-color: black;
+    position:fixed;
+    top:0;
+    left:0;
+    height: 50px;
+    width: 100%;
+    z-index: 1;
+}
+
+#btn1, #btn2 {
+  width: 5%;
+  border: none;
+  background-color: white;
+  padding: 14px;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  border-radius:25px;
+  float: right;
+  margin-left: 25px;
+}
+
+#btn1:hover, #btn2:hover{
+    padding:16px;
+}
+
+#login-pop {
+    border-style: solid;
+    border-radius: 25px;
+    background-color: aquamarine;
+    width: 900px;
+    height: 100%;
+    margin:auto;
+    margin-top: 100px;
+    text-align: center;
+    z-index: -1;
+}
+
+#search-bar{
+    width:200px;
+    height:25px;
+    border-style:solid;
+    background-color:white;
+    margin:auto;
+    position:relative;
+    margin-top: 25px;
+    margin-left:100px;
+}
+
+#search-button{
+    height:31px;
+}
+
+
+#search-nav{
+    position:absolute;
+}
+
+#form{
+    position:relative;
+    margin:auto;
+}
+
+#create-post{
+    margin-top:25px;
+    margin-right:25px;
+    float: right;
+}
+
+#post-area{
+    margin:auto;
+    margin-top: 52.5px;
+    margin-bottom: 67.5px;;
+    background-color: white;
+    background-repeat: no-repeat;
+    height: 90%;
+    width: 85%;
+    position: relative;
+
+}
+
+.posty{
+    margin-top: 15px;
+}
+
+#post-body{
+    resize: none;
+}
+
+
+
+@keyframes fade {
+    0%   {opacity: 0.25;}
+    25%  {opacity: 0.5;}
+    50%  {opacity: 0.75;}
+    100% {opacity: 1;}
+  }

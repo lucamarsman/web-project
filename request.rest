@@ -1,0 +1,34 @@
+GET http://localhost:3000/homepage
+###
+POST http://localhost:3000/register
+Content-Type: application/json
+
+{
+    "name": "Luca",
+    "password": "password"
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username": "123@123",
+    "password": "kio"
+}
+
+###
+POST http://localhost:3000/reset
+
+{
+    "email": "lucamarsman@live.com"
+}
+
+
+###
+POST http://localhost:3000/reset/:reset_link
+
+{
+    "newpassword": "lulcakes123",
+    "newpassword2": "lulcakes123"
+}
