@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config({ path: 'process.env' })
 const express = require('express')
 const app = express()
 const bcrypt = require("bcrypt")
@@ -6,16 +6,16 @@ const mysql2 = require("mysql2");
 const cookieParser = require('cookie-parser')
 const nodemailer = require('nodemailer')
 const { generateAccessToken, validateToken, generateRefreshToken, generateResetToken, validateUser} = require('./Auth')
+const { getOAuthAccessToken} = require('./OAuth')
 const crypto = require('crypto');
 const { JsonWebTokenError } = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode")
-
 
 //initialize database connection
 const db = mysql2.createConnection({
     host: "localhost",
     user: "root",
-    password: process.env.db_pw
+    password: process.env.db_password
 });
 //connect to database
 db.connect(err => {
@@ -52,12 +52,29 @@ app.get("/login", (req, res) => {
     res.render('login.html')
 })
 
+app.get("/logout", (req, res) => {
+    // Clear the cookies
+    res.clearCookie("access-token");
+    res.clearCookie("refresh-token");
+    
+    // Redirect to the home or login page
+    res.redirect('/');
+})
+
 app.get("/homepage", validateToken, (req, res) => {
     res.render('homepage.html')
 })
 
 app.get("/profile", validateToken, (req, res) => {
-    res.render('profile.html')
+    if(res.authenticated){
+        res.render('profile.html')
+        let usern = res.user
+        let email = req.email
+        let dateJoined = db.query('SELECT registration_date FROM Users WHERE username = ?', [usern])
+        console.log(res)
+    }else{
+        
+    }
 })
 
 app.get('/reset', (req, res) => {
@@ -84,8 +101,8 @@ app.post('/new-post', (req,res) => {
         "title": req.body.post_title,
         "body": req.body.post_body
     }
-    db.query('USE server_data')
-    db.query('INSERT INTO user_posts (title, body, uid) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid])
+    db.query('USE forumDB')
+    db.query('INSERT INTO Posts (title, body, uid) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid])
 
 })
 
@@ -103,11 +120,26 @@ app.post('/reset/:reset_link', async(req, res) => {
     console.log(reToken_payload)
     
     if (newp == newp2) {
-        const newHash = await bcrypt.hash(newp, 10)
-        console.log(newHash)
-        db.query('USE ' + 'server_data')
-        db.query('UPDATE user_info SET password = ? WHERE reset_link = ' + db.escape(reToken_payload), [newHash]); 
-        //implement the wiping of reset link after password successfully reset
+        const newHash = await bcrypt.hash(newp, 10);
+        console.log(newHash);
+        db.query('USE ' + 'forumDB');
+        db.query('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload], function(error, results) {
+            if (error) {
+                console.log(error);
+                return res.status(500).send('Database error');
+            }
+
+            // Once password is updated, remove the reset link
+            db.query('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload], function(err) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send('Failed to remove reset link');
+                }
+
+                // Send a success response or redirect as needed
+                res.redirect('/login');
+            });
+        });
     }
     
 })
@@ -121,32 +153,37 @@ app.post('/', validateUser, (req,res) => {
 
 })
 
-
 app.post('/reset', (req, res) => {
-    db.query('USE ' + 'server_data')
+    
+    db.query('USE ' + 'forumDB')
     const email = req.body.email
     const email_payload = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.transport_user,
-            pass: process.env.transport_pass
+            type: 'OAuth2',
+            clientId: process.env.googleapiclient,
+            clientSecret: process.env.googleapisecret,
+            refreshToken: process.env.oauthrefreshtoken,
+            accessToken: getOAuthAccessToken(),
+            user: process.env.nodemaileruser,
+            pass: process.env.nodemailerpassword
         }
     })
 
     let reset_link = crypto.randomBytes(20).toString('hex');
 
     const email_payload_info = {
-        from: process.env.transport_user,
+        from: process.env.nodemaileruser,
         to: email,
         subject: 'Password Reset',
         text: 'To reset your password, please click the link below',
         html: '<p>Click <a href="http://localhost:3000/reset/' + reset_link + '">here</a> to reset your password</p>'
     }
 
-    db.query('SELECT email FROM user_info WHERE email = ?', [req.body.email], function (error, rows) {
+    db.query('SELECT email FROM Users WHERE email = ?', [req.body.email], function (error, rows) {
         if (error) console.log(error)
         if (rows.length > 0) {
-            db.query('UPDATE user_info SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]);
+            db.query('UPDATE Users SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]);
             email_payload.sendMail(email_payload_info, function (error, info) {
                 if (error) console.log(error)
                 console.log("Email sent: "+ info.response);
@@ -154,7 +191,7 @@ app.post('/reset', (req, res) => {
         }
     })
     
-    const userId = db.query('SELECT uid FROM user_info WHERE email = ?', [req.body.email]);
+    const userId = db.query('SELECT user_id FROM Users WHERE email = ?', [req.body.email]);
     const reset_token = generateResetToken(userId, reset_link);
     let reset_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
     res.cookie('reset-token', reset_token, {
@@ -173,8 +210,8 @@ app.post("/register", async (req, res) => {
 
         let email_val = true;
         let user_val = true;
-        db.query('USE ' + 'server_data');
-        db.query('SELECT email FROM user_info WHERE email = ?', [req.body.email], function (error, rows) {
+        db.query('USE ' + 'forumDB');
+        db.query('SELECT email FROM Users WHERE email = ?', [req.body.email], function (error, rows) {
             if (error) {
                 console.log(error);
             }
@@ -184,7 +221,7 @@ app.post("/register", async (req, res) => {
             }
         })
 
-        db.query('SELECT usern FROM user_info WHERE usern = ?', [req.body.name], function (error, rows) {
+        db.query('SELECT username FROM Users WHERE username = ?', [req.body.name], function (error, rows) {
             if (error) {
                 console.log(error);
             }
@@ -194,10 +231,9 @@ app.post("/register", async (req, res) => {
             }
         })
         
-        const uid = crypto.randomBytes(64).toString('hex')
         let hashedPassword = await bcrypt.hash(req.body.password, 10)
         if (email_val == true && user_val == true) {
-            db.query('INSERT INTO user_info (email, password, usern, uid) VALUES (?,?,?,?)', [req.body.email, hashedPassword, req.body.name, uid]);
+            db.query('INSERT INTO Users (username, password, email) VALUES (?,?,?)', [req.body.name, hashedPassword, req.body.email]);
             res.redirect("/login")
         }
     } catch {
@@ -208,12 +244,12 @@ app.post("/register", async (req, res) => {
 
 // handle user login //
 app.post("/login", async (req, res) => {
-    db.query('USE ' + 'server_data');
-    db.query('SELECT email FROM user_info WHERE email = ?', [req.body.username], function (error, rows) {
+    db.query('USE ' + 'forumDB');
+    db.query('SELECT email FROM Users WHERE email = ?', [req.body.username], function (error, rows) {
         if (error) console.log(error);
         if (rows.length > 0) {
             console.log("account found")
-            db.query('SELECT password FROM user_info WHERE email = ?', [req.body.username], async function (error, result) {
+            db.query('SELECT password FROM Users WHERE email = ?', [req.body.username], async function (error, result) {
                 if (error) console.log(error);
                 let z = await bcrypt.compare(req.body.password, result[0].password)
 
@@ -243,7 +279,7 @@ app.post("/login", async (req, res) => {
                         expires: access_expiry,
                         httpOnly: true
                     })
-                    res.redirect('/homepage')
+                    res.redirect('/')
                     res.end()
                     console.log(res)
                 }
