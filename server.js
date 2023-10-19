@@ -32,11 +32,15 @@ app.use('/public', express.static('public'));
 app.use(express.json())
 
 //render html on index, register, login pages
-app.get("/", validateToken, (req, res) => {
+app.get("/", validateToken, async (req, res) => {
     if(res.authenticated){
-        res.render('index_a.html')
+        await queryDb('USE forumDB');
+        const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT 2');
+        res.render('index_a.ejs', { posts });
     }else{
-        res.render('index.html')
+        await queryDb('USE forumDB');
+        const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT 2');
+        res.render('index.ejs', { posts });
     }
 })
 
@@ -68,7 +72,7 @@ app.get("/homepage", validateToken, (req, res) => {
 app.get("/profile", validateToken, async (req, res) => {
     if(res.authenticated){
         let decodedToken = jwt_decode(req.cookies['refresh-token'])
-        const uid = decodedToken.user.userid;  // Fix here
+        const uid = decodedToken.user.userid; 
 
         await queryDb('USE forumDB');
         const username = await queryDb('SELECT username FROM Users WHERE user_id = ?', [uid]);
@@ -76,12 +80,11 @@ app.get("/profile", validateToken, async (req, res) => {
         const dateJoined = await queryDb('SELECT registration_date FROM Users WHERE user_id = ?', [uid]);
 
         res.render('profile.ejs', {
-            username: username[0].username,  // Use the returned result
-            email: email[0].email,  // Use the returned result
-            dateJoined: dateJoined[0].registration_date  // Use the returned result
+            username: username[0].username,  
+            email: email[0].email,  
+            dateJoined: dateJoined[0].registration_date  
         });        
     } else {
-        // Handle unauthenticated requests, maybe redirect to login
         res.redirect('/login');
     }
 });
@@ -98,9 +101,58 @@ app.get('/reset/:reset_link', (req, res) => {
 app.get('/new-post', validateToken, (req, res) => {
     if(res.authenticated){
        res.render('post-submit.html')
+    }else{
+        res.redirect('/login')
     }
-    res.redirect('/login')
+    
 })
+
+app.get('/post/:postId', validateToken, async (req, res) => {
+
+
+    const postId = req.params.postId;
+    await queryDb('USE forumDB');
+    const post = await queryDb('SELECT * FROM Posts WHERE post_id = ?', [postId]);
+    const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ?', [postId]);
+
+    if (post && post.length > 0) {
+        // Render the post
+        if(res.authenticated){
+            res.render('post-view-a.ejs', {
+                title: post[0].title,
+                body: post[0].content,
+                timestamp: post[0].timestamp,
+                comments: comments
+            });
+        }else{
+            res.render('post-view.ejs', {
+                title: post[0].title,
+                body: post[0].content,
+                timestamp: post[0].timestamp,
+                comments: comments
+            });
+        }
+        
+    } else {
+        res.status(404).send('Post not found');
+    }
+});
+
+app.post('/post/:postId', validateToken, async (req, res) => {
+    if(res.authenticated){
+        const postId = req.params.postId
+        let decodedToken = jwt_decode(req.cookies['refresh-token'])
+        const uid = decodedToken.user.userid; 
+        const content = req.body.comment
+        
+        await queryDb('USE forumDB');
+        await queryDb('INSERT INTO Comments (post_id, user_id, content) VALUES (?,?,?)', [postId, uid, content]);
+        res.redirect(`/post/${postId}`);
+     }else{
+        res.redirect('/login');
+     }
+     
+});
 
 app.post('/new-post', async (req, res) => {
     console.log(req)
@@ -109,8 +161,14 @@ app.post('/new-post', async (req, res) => {
         "title": req.body.post_title,
         "body": req.body.post_body
     }
+
+    let decodedToken = jwt_decode(req.cookies['refresh-token'])
+    const uid = decodedToken.user.userid; 
     await queryDb('USE forumDB');
-    await queryDb('INSERT INTO Posts (title, body, uid) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]);
+    const result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]);
+    const postId = result.insertId
+
+    res.redirect(`/post/${postId}`);
 });
 
 app.post('/reset/:reset_link', async(req, res) => {
