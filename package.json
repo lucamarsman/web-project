@@ -18,7 +18,11 @@
     "nodemailer": "^6.6.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.22"
+  },
+  "nodemonConfig": {
+    "watch": ["*.*"],
+    "ext": "js,json,ejs,css"
   },
   "scripts": {
     "devStart": "nodemon server.js",
