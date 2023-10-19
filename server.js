@@ -65,17 +65,26 @@ app.get("/homepage", validateToken, (req, res) => {
     res.render('homepage.html')
 })
 
-app.get("/profile", validateToken, (req, res) => {
+app.get("/profile", validateToken, async (req, res) => {
     if(res.authenticated){
-        res.render('profile.html')
-        let usern = res.user
-        let email = req.email
-        let dateJoined = db.query('SELECT registration_date FROM Users WHERE username = ?', [usern])
-        console.log(res)
-    }else{
-        
+        let decodedToken = jwt_decode(req.cookies['refresh-token'])
+        const uid = decodedToken.user.userid;  // Fix here
+
+        await queryDb('USE forumDB');
+        const username = await queryDb('SELECT username FROM Users WHERE user_id = ?', [uid]);
+        const email = await queryDb('SELECT email FROM Users WHERE user_id = ?', [uid]);
+        const dateJoined = await queryDb('SELECT registration_date FROM Users WHERE user_id = ?', [uid]);
+
+        res.render('profile.ejs', {
+            username: username[0].username,  // Use the returned result
+            email: email[0].email,  // Use the returned result
+            dateJoined: dateJoined[0].registration_date  // Use the returned result
+        });        
+    } else {
+        // Handle unauthenticated requests, maybe redirect to login
+        res.redirect('/login');
     }
-})
+});
 
 app.get('/reset', (req, res) => {
     res.render('reset.html')
@@ -93,204 +102,121 @@ app.get('/new-post', validateToken, (req, res) => {
     res.redirect('/login')
 })
 
-app.post('/new-post', (req,res) => {
+app.post('/new-post', async (req, res) => {
     console.log(req)
-    const post_ref = crypto.randomBytes(20).toString('hex'); //add post reference column to user_post table in db
-    //decode jwt token and use email to query the corresponding uid, then use that uid in the post_payload for db insertion into user_posts table
+    const post_ref = crypto.randomBytes(20).toString('hex');
     const post_payload = {
         "title": req.body.post_title,
         "body": req.body.post_body
     }
-    db.query('USE forumDB')
-    db.query('INSERT INTO Posts (title, body, uid) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid])
-
-})
+    await queryDb('USE forumDB');
+    await queryDb('INSERT INTO Posts (title, body, uid) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]);
+});
 
 app.post('/reset/:reset_link', async(req, res) => {
-    const resetToken = req.cookies['reset-token']
-    console.log(req)
-    let newp = req.body.newpassword
-    console.log(newp)
-    let newp2 = req.body.newpassword2
-    if (!resetToken) {
-        return res.status(400).send("Reset window expired, please try again")
-    }
+    const resetToken = req.cookies['reset-token'];
+    console.log(req);
+    let newp = req.body.newpassword;
+    console.log(newp);
+    let newp2 = req.body.newpassword2;
 
-    const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link
-    console.log(reToken_payload)
+    if (!resetToken) {
+        return res.status(400).send("Reset window expired, please try again");
+    }
+    const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link;
+    console.log(reToken_payload);
     
     if (newp == newp2) {
         const newHash = await bcrypt.hash(newp, 10);
         console.log(newHash);
-        db.query('USE ' + 'forumDB');
-        db.query('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload], function(error, results) {
-            if (error) {
-                console.log(error);
-                return res.status(500).send('Database error');
-            }
-
-            // Once password is updated, remove the reset link
-            db.query('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload], function(err) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send('Failed to remove reset link');
-                }
-
-                // Send a success response or redirect as needed
-                res.redirect('/login');
-            });
-        });
+        await queryDb('USE forumDB');
+        await queryDb('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload]);
+        await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]);
+        res.redirect('/login');
     }
-    
-})
+});
 
-app.post('/', validateUser, (req,res) => {
-    console.log(req.body.action)
-    if (req.body.action == "search"){
-        //implement search function on posts
-    }
-
-
-})
-
-app.post('/reset', (req, res) => {
-    
-    db.query('USE ' + 'forumDB')
-    const email = req.body.email
-    const email_payload = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            type: 'OAuth2',
-            clientId: process.env.googleapiclient,
-            clientSecret: process.env.googleapisecret,
-            refreshToken: process.env.oauthrefreshtoken,
-            accessToken: getOAuthAccessToken(),
-            user: process.env.nodemaileruser,
-            pass: process.env.nodemailerpassword
-        }
-    })
-
+app.post('/reset', async (req, res) => {
+    await queryDb('USE forumDB');
+    const email = req.body.email;
     let reset_link = crypto.randomBytes(20).toString('hex');
-
-    const email_payload_info = {
-        from: process.env.nodemaileruser,
-        to: email,
-        subject: 'Password Reset',
-        text: 'To reset your password, please click the link below',
-        html: '<p>Click <a href="http://localhost:3000/reset/' + reset_link + '">here</a> to reset your password</p>'
+    const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.email]);
+    if (rows.length > 0) {
+        await queryDb('UPDATE Users SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]);
+        const userId = (await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.email]))[0].user_id;
+        const reset_token = generateResetToken(userId, reset_link);
+        let reset_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
+        res.cookie('reset-token', reset_token, {
+            expires: reset_expiry,
+            httpOnly: true
+        });
+        res.redirect('reset-message');
     }
+});
 
-    db.query('SELECT email FROM Users WHERE email = ?', [req.body.email], function (error, rows) {
-        if (error) console.log(error)
-        if (rows.length > 0) {
-            db.query('UPDATE Users SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]);
-            email_payload.sendMail(email_payload_info, function (error, info) {
-                if (error) console.log(error)
-                console.log("Email sent: "+ info.response);
-            })
-        }
-    })
-    
-    const userId = db.query('SELECT user_id FROM Users WHERE email = ?', [req.body.email]);
-    const reset_token = generateResetToken(userId, reset_link);
-    let reset_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
-    res.cookie('reset-token', reset_token, {
-        expires: reset_expiry,
-        httpOnly: true
-    })
-
-    res.redirect('reset-message');
-
-})
-
-
-// handle user creation and password encryption //
 app.post("/register", async (req, res) => {
     try {
-
-        let email_val = true;
-        let user_val = true;
-        db.query('USE ' + 'forumDB');
-        db.query('SELECT email FROM Users WHERE email = ?', [req.body.email], function (error, rows) {
-            if (error) {
-                console.log(error);
-            }
-            if (rows.length > 0) {
-                console.log("email taken");
-                email_val = false;
-            }
-        })
-
-        db.query('SELECT username FROM Users WHERE username = ?', [req.body.name], function (error, rows) {
-            if (error) {
-                console.log(error);
-            }
-            if (rows.length > 0) {
-                console.log("name taken")
-                user_val = false
-            }
-        })
-        
-        let hashedPassword = await bcrypt.hash(req.body.password, 10)
-        if (email_val == true && user_val == true) {
-            db.query('INSERT INTO Users (username, password, email) VALUES (?,?,?)', [req.body.name, hashedPassword, req.body.email]);
-            res.redirect("/login")
+        await queryDb('USE forumDB');
+        const emailRows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.email]);
+        const nameRows = await queryDb('SELECT username FROM Users WHERE username = ?', [req.body.name]);
+        let hashedPassword = await bcrypt.hash(req.body.password, 10);
+        if (emailRows.length === 0 && nameRows.length === 0) {
+            await queryDb('INSERT INTO Users (username, password, email) VALUES (?,?,?)', [req.body.name, hashedPassword, req.body.email]);
+            res.redirect("/login");
+        } else {
+            console.log("Username or email already taken.");
         }
     } catch {
-        console.log("something went wrong");
+        console.log("Something went wrong");
     }
-})
+});
 
-
-// handle user login //
 app.post("/login", async (req, res) => {
-    db.query('USE ' + 'forumDB');
-    db.query('SELECT email FROM Users WHERE email = ?', [req.body.username], function (error, rows) {
-        if (error) console.log(error);
-        if (rows.length > 0) {
-            console.log("account found")
-            db.query('SELECT password FROM Users WHERE email = ?', [req.body.username], async function (error, result) {
-                if (error) console.log(error);
-                let z = await bcrypt.compare(req.body.password, result[0].password)
-
-                if (error) {
-                    console.log(error)
-                } else if (!z) {
-                    console.log("Password doesn't match!")
-                } else {
-                    console.log("Password matches!")
-                    const payload_access = {
-                        user: req.body.username,
-                        role: 'accesstoken'
-                    }
-                    const payload_refresh = {
-                        user: req.body.username,
-                        role: 'refreshtoken'
-                    }
-                    const accessToken = generateAccessToken(payload_access)
-                    const refreshToken = generateRefreshToken(payload_refresh)
-                    let refresh_expiry = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-                    res.cookie("refresh-token", refreshToken, {
-                        expires: refresh_expiry,
-                        httpOnly: true
-                    })
-                    let access_expiry = new Date(new Date().getTime() + 5 * 60 * 1000)
-                    res.cookie("access-token", accessToken, {
-                        expires: access_expiry,
-                        httpOnly: true
-                    })
-                    res.redirect('/')
-                    res.end()
-                    console.log(res)
-                }
-            })
-
-
+    await queryDb('USE forumDB');
+    const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.username]);
+    if (rows.length > 0) {
+        const result = await queryDb('SELECT password FROM Users WHERE email = ?', [req.body.username]);
+        const passwordResult = await bcrypt.compare(req.body.password, result[0].password);
+        const userIdResult = await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.username]);
+        const uid = userIdResult[0].user_id;
+        if (passwordResult) {
+            console.log("Password matches!");
+            const payload_access = {
+                user: req.body.username,
+                role: 'accesstoken'
+            };
+            const payload_refresh = {
+                userid: uid,
+                role: 'refreshtoken'
+            };
+            const accessToken = generateAccessToken(payload_access);
+            const refreshToken = generateRefreshToken(payload_refresh);
+            let refresh_expiry = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+            res.cookie("refresh-token", refreshToken, {
+                expires: refresh_expiry,
+                httpOnly: true
+            });
+            let access_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
+            res.cookie("access-token", accessToken, {
+                expires: access_expiry,
+                httpOnly: true
+            });
+            res.redirect('/');
         } else {
-            return res.status(400).send("Cannot find user")
+            res.status(401).send("Incorrect password.");
         }
+    } else {
+        res.status(404).send("Email not registered.");
+    }
+});
 
-    })
-})
+function queryDb(sql, params) {
+    return new Promise((resolve, reject) => {
+        db.query(sql, params, (error, results) => {
+            if (error) reject(error);
+            resolve(results);
+        });
+    });
+}
 
 app.listen(3000)
