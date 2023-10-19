@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title> Homepage </title>
+  <link rel="stylesheet" type="text/css" href="/public/assets/styles.css" title="style" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <div id = "main">
+        <header id = "main-nav">
+          <button id = "btn1" onclick="window.location.href='/login'">Log In</button>
+          <button id = "btn2" onclick="window.location.href='/register'">Sign Up</button>
+        </header>
+      </div>
+
+<div id="login-pop">
+
+    <div id="post-data">
+    <h1 id="title"><%= title %></h1>
+    <p id="content"><%= body %></p>
+    <p id="timestamp"><%= timestamp %></p>
+    </div>
+
+    <div id = "new-comment">
+      <form action="" id = "comment-form" method = "POST">
+      <textarea id ="newcomment" maxlength="500" name="comment"></textarea>
+      <button id="post-comment" type = "submit" onclick="window.location.href='/new-comment'">Post</button>
+      </form>
+    </div>
+
+    <div id="comments">
+      <% comments.forEach(function(comment) { %> 
+        <div class="comment" data-commentid="<%= comment.comment_id %>">
+            <p><%= comment.content %></p>
+            <!-- Add more comment details  -->
+        </div>
+    <% }); %>
+    </div>
+
+</div>
+
+
+</body>
+</html>
