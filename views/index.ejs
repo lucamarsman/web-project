@@ -33,94 +33,104 @@
   
   
   <script>
-     let currentPage = 1;
-     let isLoading = false;
-     let morePostsAvailable = true;  // New flag to check if more posts are left
+    let currentPage = 1;
+    let isLoading = false;
+    let morePostsAvailable = true;  // New flag to check if more posts are left
 
 function debounce(fn, delay) {
-    let timer;
-    return function() {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            fn();
-        }, delay);
-    };
+   let timer;
+   return function() {
+       clearTimeout(timer);
+       timer = setTimeout(() => {
+           fn();
+       }, delay);
+   };
 }
 
 function nearBottomOfPage() {
-    return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
+   return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 }
 
 function loadPosts() {
-    if (isLoading || !morePostsAvailable) return;
+   if (isLoading || !morePostsAvailable) return;
 
-    isLoading = true;
+   isLoading = true;
 
-    const loadingIndicator = document.createElement("div");
-    loadingIndicator.textContent = "Loading...";
-    loadingIndicator.id = "loading-indicator";
-    postsContainer.appendChild(loadingIndicator);
+   const loadingIndicator = document.createElement("div");
+   loadingIndicator.textContent = "Loading...";
+   loadingIndicator.id = "loading-indicator";
+   postsContainer.appendChild(loadingIndicator);
 
-    fetch(`/api/posts?page=${currentPage}`)
-        .then(response => response.json())
-        .then(posts => {
-            isLoading = false;
-            
-            if (posts.length > 0) {
-                posts.forEach(post => {
-                    const postElement = document.createElement("div");
-                    postElement.classList.add("post-item");
-                    postElement.setAttribute("data-post-id", post.post_id);
-                    postElement.textContent = post.title;
-                    postsContainer.appendChild(postElement);
-                });
-                currentPage++;
-                
-                const loadingIndicator = document.getElementById("loading-indicator");
-                if (loadingIndicator) {
-                   loadingIndicator.remove();
-                }
-                
-            } else {
-                morePostsAvailable = false; // No more posts left to fetch
-                const loadingIndicator = document.getElementById("loading-indicator");
-                if (loadingIndicator) {
-                   loadingIndicator.remove();
-                }
-            }
-        })
-        .catch(error => {
-            isLoading = false;
-            console.error('Failed to fetch posts:', error);
+   fetch(`/api/posts?page=${currentPage}`)
+       .then(response => response.json())
+       .then(posts => {
+           isLoading = false;
+           if (posts.length > 0) {
+               posts.forEach(post => {
+                   const postElement = document.createElement("div");
+                   postElement.classList.add("post-item");
+                   postElement.setAttribute("data-post-id", post.post_id);
 
-            const loadingIndicator = document.getElementById("loading-indicator");
-            if (loadingIndicator) {
-                loadingIndicator.remove();
-            }
-        });
+                   const postTitle = document.createElement("h1");
+                   postTitle.textContent = post.title;
+                   const postContent = document.createElement("p");
+                   postContent.textContent = post.content;
+                   const postTimestamp = document.createElement("p");
+                   postTimestamp.textContent = post.timestamp;
+
+                   postElement.appendChild(postTitle);
+                   postElement.appendChild(postContent);
+                   postElement.appendChild(postTimestamp);
+
+                   postsContainer.appendChild(postElement);
+               });
+               currentPage++;
+               
+               const loadingIndicator = document.getElementById("loading-indicator");
+               if (loadingIndicator) {
+                  loadingIndicator.remove();
+               }
+               
+           } else {
+               morePostsAvailable = false; // No more posts left to fetch
+               const loadingIndicator = document.getElementById("loading-indicator");
+               if (loadingIndicator) {
+                  loadingIndicator.remove();
+               }
+           }
+       })
+       .catch(error => {
+           isLoading = false;
+           console.error('Failed to fetch posts:', error);
+
+           const loadingIndicator = document.getElementById("loading-indicator");
+           if (loadingIndicator) {
+               loadingIndicator.remove();
+           }
+       });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const postsContainer = document.getElementById("postsContainer");
+   const postsContainer = document.getElementById("postsContainer");
 
-    // Event delegation for posts
-    postsContainer.addEventListener("click", function(event) {
-        if (event.target.classList.contains("post-item")) {
-            const postId = event.target.dataset.postId;
-            window.location.href = `/post/${postId}`;
-        }
-    });
-
-    // Debounce the onScroll function to optimize performance
-    document.addEventListener('scroll', debounce(() => {
-        if (nearBottomOfPage()) {
-            loadPosts();
-        }
-    }, 100));
-
-    loadPosts(); // Load the initial posts
+   // Event delegation for posts
+   postsContainer.addEventListener('click', function(e) {
+     let post = e.target.closest('.post-item');
+     if (post) {
+       window.location.href = `/post/${post.dataset.postId}`;
+     }
 });
-  </script>
+
+   // Debounce the onScroll function to optimize performance
+   document.addEventListener('scroll', debounce(() => {
+       if (nearBottomOfPage()) {
+           loadPosts();
+       }
+   }, 100));
+
+   loadPosts(); // Load the initial posts
+});
+ </script>
 </body>
 </html>
 </html>
