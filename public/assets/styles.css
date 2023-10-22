@@ -1,5 +1,5 @@
 body{
-    background-image: url('bg1.png');
+    background-color:#F4F7F6;
     background-size: 100%;
     position:absolute;
     left:0px; 
@@ -36,13 +36,12 @@ body{
 }
 
 #login-pop {
-    border-style: solid;
-    border-radius: 25px;
-    background-color: aquamarine;
+    
+    background-color: #DDDDDD;
     width: 900px;
-    min-height:90vh;
+    min-height:100vh;
     margin:auto;
-    margin-top: 100px;
+    margin-top: 40px;
     display:flex;
     flex-direction: column;
     z-index: -1;
@@ -210,7 +209,25 @@ body{
 }
 
 .post-item{
-  border-style:solid;
-  height:250px;
+  min-height:150px;
+  max-height:500px;
   width:75%;
+  overflow: hidden;
+  
+}
+
+.post-item:hover{
+  cursor: pointer;
+  background-color: #F4F7F6;
+  border-radius: 25px;
+}
+
+.post-item > h1{
+  color:#333333;
+  
+}
+
+.post-item > p {
+  color:#666666;
+  
 }
