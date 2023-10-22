@@ -104,7 +104,7 @@ app.get('/new-post', validateToken, (req, res) => {
 })
 
 app.get("/api/posts", validateToken, async (req, res) => {
-    const limit = 2; // number of posts per page
+    const limit = 5; // number of posts per page
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const offset = (page - 1) * limit;
 
@@ -113,9 +113,17 @@ app.get("/api/posts", validateToken, async (req, res) => {
     res.json(posts);
 });
 
+app.get("/api/comments", validateToken, async (req, res) => {
+    const limit = 5; // number of posts per page
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const offset = (page - 1) * limit;
+
+    await queryDb('USE forumDB');
+    const comments = await queryDb('SELECT * FROM Comments ORDER BY comment_id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    res.json(comments);
+});
+
 app.get('/post/:postId', validateToken, async (req, res) => {
-
-
     const postId = req.params.postId;
     await queryDb('USE forumDB');
     const post = await queryDb('SELECT * FROM Posts WHERE post_id = ?', [postId]);
