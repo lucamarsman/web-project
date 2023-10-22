@@ -34,13 +34,9 @@ app.use(express.json())
 //render html on index, register, login pages
 app.get("/", validateToken, async (req, res) => {
     if(res.authenticated){
-        await queryDb('USE forumDB');
-        const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT 2');
-        res.render('index_a.ejs', { posts });
+        res.render('index_a.ejs');
     }else{
-        await queryDb('USE forumDB');
-        const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT 2');
-        res.render('index.ejs', { posts });
+        res.render('index.ejs');
     }
 })
 
@@ -106,6 +102,16 @@ app.get('/new-post', validateToken, (req, res) => {
     }
     
 })
+
+app.get("/api/posts", validateToken, async (req, res) => {
+    const limit = 2; // number of posts per page
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const offset = (page - 1) * limit;
+
+    await queryDb('USE forumDB');
+    const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    res.json(posts);
+});
 
 app.get('/post/:postId', validateToken, async (req, res) => {
 
