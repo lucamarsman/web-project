@@ -116,12 +116,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const postsContainer = document.getElementById("postsContainer");
 
     // Event delegation for posts
-    postsContainer.addEventListener("click", function(event) {
-        if (event.target.classList.contains("post-item")) {
-            const postId = event.target.dataset.postId;
-            window.location.href = `/post/${postId}`;
-        }
-    });
+    postsContainer.addEventListener('click', function(e) {
+      let post = e.target.closest('.post-item');
+      if (post) {
+        window.location.href = `/post/${post.dataset.postId}`;
+      }
+});
 
     // Debounce the onScroll function to optimize performance
     document.addEventListener('scroll', debounce(() => {
