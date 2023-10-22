@@ -67,13 +67,23 @@ function loadPosts() {
         .then(response => response.json())
         .then(posts => {
             isLoading = false;
-            
             if (posts.length > 0) {
                 posts.forEach(post => {
                     const postElement = document.createElement("div");
                     postElement.classList.add("post-item");
                     postElement.setAttribute("data-post-id", post.post_id);
-                    postElement.textContent = post.title;
+
+                    const postTitle = document.createElement("h1");
+                    postTitle.textContent = post.title;
+                    const postContent = document.createElement("p");
+                    postContent.textContent = post.content;
+                    const postTimestamp = document.createElement("p");
+                    postTimestamp.textContent = post.timestamp;
+
+                    postElement.appendChild(postTitle);
+                    postElement.appendChild(postContent);
+                    postElement.appendChild(postTimestamp);
+
                     postsContainer.appendChild(postElement);
                 });
                 currentPage++;
