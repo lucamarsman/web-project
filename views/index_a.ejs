@@ -80,18 +80,38 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     postElement.classList.add("post-item");
                     postElement.setAttribute("data-post-id", post.post_id);
 
+                    const postMain = document.createElement("div");
+                    postMain.id = "post-data";
+                    
+                    const postInteract = document.createElement("div");
+                    postInteract.id = "post-interact";
+
+                    const saveIcon = document.createElement("img");
+                    saveIcon.src = "/public/assets/images/save.svg"
+                    saveIcon.id = "save";
+                    const likeIcon = document.createElement("img");
+                    likeIcon.src = "/public/assets/images/like.svg"
+                    likeIcon.id = "like";
+
+                    postInteract.appendChild(likeIcon);
+                    postInteract.appendChild(saveIcon);
+
+
                     const postTitle = document.createElement("h1");
                     postTitle.textContent = post.title;
                     const postContent = document.createElement("p");
                     postContent.textContent = post.content;
                     const postTimestamp = document.createElement("p");
                     postTimestamp.textContent = post.timestamp;
-
-                    postElement.appendChild(postTitle);
-                    postElement.appendChild(postContent);
-                    postElement.appendChild(postTimestamp);
+                    
+                    postMain.appendChild(postTitle);
+                    postMain.appendChild(postContent);
+                    postMain.appendChild(postTimestamp);
+                    postElement.appendChild(postMain);
+                    postElement.appendChild(postInteract);
 
                     postsContainer.appendChild(postElement);
+
                 });
                 currentPage++;
                 
@@ -136,6 +156,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event delegation for posts
     postsContainer.addEventListener('click', function(e) {
+      if (event.target.classList.contains('btn-delete') || event.target.closest('#like')) {
+        console.log('Like'); // Handle liking posts
+        return;
+      }else if(event.target.classList.contains('btn-delete') || event.target.closest('#save')) {
+        console.log('Save'); // Handle saving posts
+        return
+      }
+
       let post = e.target.closest('.post-item');
       if (post) {
         window.location.href = `/post/${post.dataset.postId}`;
@@ -148,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
           performSearch();
       });
 
+      
     // Debounce the onScroll function to optimize performance
     document.addEventListener('scroll', debounce(() => {
     if (nearBottomOfPage()) {
