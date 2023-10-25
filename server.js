@@ -103,6 +103,20 @@ app.get('/new-post', validateToken, (req, res) => {
     
 })
 
+app.get('/api/search', validateToken, async (req, res) => {
+    console.log(req.query.query)
+    const searchVal = `%${req.query.query}%`;
+    const limit = 5; // number of posts per page
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const offset = (page - 1) * limit;
+
+    await queryDb('USE forumDB');
+    const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]);
+    res.json(posts);
+    
+})
+
+
 app.get("/api/posts", validateToken, async (req, res) => {
     const limit = 5; // number of posts per page
     const page = req.query.page ? parseInt(req.query.page) : 1;
