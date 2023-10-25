@@ -17,8 +17,8 @@
   
   <div id="login-pop">
     <div class="search-nav">
-      <form action="" id = "form" method = "POST">
-        <input type="text" id = "search-bar" placeholder="Search..">
+      <form action="" id = "searchForm" method = "POST">
+        <input type="text" id = "search-bar" placeholder="Search.." name="search_val">
         <button type="submit" id = "search-button" name = 'action' value = 'search'>Go</button>
       <button id = "create-post" type = 'button' name = 'action' value = 'post'  onclick="window.location.href='/new-post'">New Post</button>
     </form>
@@ -35,11 +35,13 @@
   
   
   <script>
-     let currentPage = 1;
-     let isLoading = false;
-     let morePostsAvailable = true;  // New flag to check if more posts are left
+    let currentPage = 1;
+    let isLoading = false; // Flag to check if the server is currently loading more posts from the db
+    let morePostsAvailable = true; // Flag to check if there are more posts available
+    let searchMode = false;  // Flag to check if search mode is active
+    let lastSearchQuery = ''; // Store the last search query
 
-function debounce(fn, delay) {
+function debounce(fn, delay) { // Debounce function for scroll event listener
     let timer;
     return function() {
         clearTimeout(timer);
@@ -49,11 +51,11 @@ function debounce(fn, delay) {
     };
 }
 
-function nearBottomOfPage() {
+function nearBottomOfPage() { // Function to check if the user has scrolled to the bottom of page
     return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 }
 
-function loadPosts() {
+function loadPosts(searchQuery = '') { // Function that loads posts to front page
     if (isLoading || !morePostsAvailable) return;
 
     isLoading = true;
@@ -63,7 +65,12 @@ function loadPosts() {
     loadingIndicator.id = "loading-indicator";
     postsContainer.appendChild(loadingIndicator);
 
-    fetch(`/api/posts?page=${currentPage}`)
+    let url = `/api/posts?page=${currentPage}`;
+    if (searchMode && searchQuery) {
+        url = `/api/search?query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
+    }
+
+    fetch(url)
         .then(response => response.json())
         .then(posts => {
             isLoading = false;
@@ -112,6 +119,18 @@ function loadPosts() {
         });
 }
 
+function performSearch() { // Funciton that loads post based on search input
+        const searchQuery = document.getElementById('search-bar').value;
+        if (searchQuery !== lastSearchQuery) {
+            currentPage = 1;
+            morePostsAvailable = true;
+            postsContainer.innerHTML = ''; // Clear existing posts
+        }
+        lastSearchQuery = searchQuery;
+        searchMode = true;
+        loadPosts(searchQuery);
+    }
+
 document.addEventListener('DOMContentLoaded', function() {
     const postsContainer = document.getElementById("postsContainer");
 
@@ -123,12 +142,22 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 });
 
+      const searchForm = document.getElementById('searchForm');
+      searchForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          performSearch();
+      });
+
     // Debounce the onScroll function to optimize performance
     document.addEventListener('scroll', debounce(() => {
-        if (nearBottomOfPage()) {
+    if (nearBottomOfPage()) {
+        if (searchMode) {
+            loadPosts(lastSearchQuery);
+        } else {
             loadPosts();
         }
-    }, 100));
+    }
+}, 100));
 
     loadPosts(); // Load the initial posts
 });
