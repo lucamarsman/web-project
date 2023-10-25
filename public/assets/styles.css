@@ -218,8 +218,13 @@ body{
   min-height:150px;
   max-height:500px;
   width:75%;
-  overflow: hidden;
+  
   padding:30px;
+}
+
+#post-data {
+  max-height:300px;
+  overflow:hidden;
 }
 
 .post-item:hover{
@@ -236,4 +241,9 @@ body{
 .post-item > p {
   color:#666666;
   
+}
+
+#post-interact > img {
+  height:35px;
+  width:35px;
 }
