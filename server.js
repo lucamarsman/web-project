@@ -116,14 +116,25 @@ app.get('/api/search', validateToken, async (req, res) => {
     
 })
 
-
 app.get("/api/posts", validateToken, async (req, res) => {
     const limit = 5; // number of posts per page
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const offset = (page - 1) * limit;
+    let decodedToken = jwt_decode(req.cookies['refresh-token']);
+    const userId = decodedToken.user.userid; 
 
     await queryDb('USE forumDB');
-    const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    const posts = await queryDb(`
+        SELECT p.*, 
+               EXISTS(
+                 SELECT 1 
+                 FROM likes 
+                 WHERE likes.post_id = p.post_id AND likes.user_id = ?
+               ) AS liked
+        FROM posts p
+        ORDER BY p.timestamp DESC
+        LIMIT ? OFFSET ?
+      `, [userId, limit, offset]);
     res.json(posts);
 });
 
@@ -181,6 +192,47 @@ app.post('/post/:postId', validateToken, async (req, res) => {
      }
      
 });
+
+app.post('/api/like/:postId', validateToken, async function(req, res) {
+    if(res.authenticated){
+        const postId = req.params.postId;
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const userId = decodedToken.user.userid; 
+        
+        try {
+            const likeResult = await likePost(postId, userId);
+            if (likeResult.alreadyLiked) {
+                res.status(300).send({ success: true, message: 'Post already liked' });
+                await queryDb('DELETE FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]);
+                await queryDb('UPDATE Posts SET likeCount = likeCount - 1 WHERE post_id = ?', [postId]);
+            } else {
+                res.status(200).send({ success: true, message: 'Post liked successfully' });
+                await queryDb('UPDATE Posts SET likeCount = likeCount + 1 WHERE post_id = ?', [postId]);
+            }
+        } catch (error) {
+            console.error('Error liking post:', error);
+            res.status(500).send({ success: false, message: 'Internal Server Error' });
+        }
+    } else {
+        res.redirect('/login');
+    }
+});
+
+async function likePost(postId, userId) {
+    try {
+        const rows = await queryDb('SELECT * FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]); 
+        if(rows.length > 0){
+            console.log("Post already liked");
+            return { alreadyLiked: true };
+        } else {
+            await queryDb('INSERT INTO likes (user_id, post_id) VALUES (?,?)', [userId, postId]);
+            return { alreadyLiked: false };
+        }
+    } catch (error) {
+        throw error; 
+    }
+}
+
 
 app.post('/new-post', async (req, res) => {
     console.log(req)

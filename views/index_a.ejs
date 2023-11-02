@@ -88,14 +88,13 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
 
                     const saveIcon = document.createElement("img");
                     saveIcon.src = "/public/assets/images/save.svg"
-                    saveIcon.id = "save";
+                    saveIcon.classList.add("save-icon"); // Changed from id to class
                     const likeIcon = document.createElement("img");
-                    likeIcon.src = "/public/assets/images/like.svg"
-                    likeIcon.id = "like";
+                    likeIcon.src = post.liked ? "/public/assets/images/like2.svg" : "/public/assets/images/like.svg";
+                    likeIcon.classList.add("like-icon"); // Changed from id to class
 
                     postInteract.appendChild(likeIcon);
                     postInteract.appendChild(saveIcon);
-
 
                     const postTitle = document.createElement("h1");
                     postTitle.textContent = post.title;
@@ -156,18 +155,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event delegation for posts
     postsContainer.addEventListener('click', function(e) {
-      if (event.target.classList.contains('btn-delete') || event.target.closest('#like')) {
+      if (e.target.classList.contains('like-icon')) {
         console.log('Like'); // Handle liking posts
-        return;
-      }else if(event.target.classList.contains('btn-delete') || event.target.closest('#save')) {
+        const post = e.target.closest('.post-item');
+
+        if(post){
+          fetch(`api/like/${post.dataset.postId}`, {method: 'POST'})
+            .then(response => {
+              if(response.ok){
+                console.log("Post liked");
+                e.target.src = "/public/assets/images/like2.svg";
+              }else{
+                console.log("Post unliked");
+                e.target.src = "/public/assets/images/like.svg";
+              }
+            })
+
+            .catch(error => {
+              console.error('Failed to like post:', error);
+            })
+        }
+
+      }else if(e.target.classList.contains('save-icon')) {
         console.log('Save'); // Handle saving posts
         return
-      }
+      }else if (!e.target.classList.contains('like') && !e.target.classList.contains('save')) {
+    
+        let post = e.target.closest('.post-item');
+        if (post) {
+          window.location.href = `/post/${post.dataset.postId}`;
+        }
+      } 
 
-      let post = e.target.closest('.post-item');
-      if (post) {
-        window.location.href = `/post/${post.dataset.postId}`;
-      }
+      
 });
 
       const searchForm = document.getElementById('searchForm');
@@ -192,5 +212,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
   </script>
 </body>
-</html>
 </html>
