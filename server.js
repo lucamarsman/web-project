@@ -117,25 +117,44 @@ app.get('/api/search', validateToken, async (req, res) => {
 })
 
 app.get("/api/posts", validateToken, async (req, res) => {
-    const limit = 5; // number of posts per page
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const offset = (page - 1) * limit;
-    let decodedToken = jwt_decode(req.cookies['refresh-token']);
-    const userId = decodedToken.user.userid; 
+    if(res.authenticated){
+        try{
+            const limit = 5; // number of posts per page
+            const page = req.query.page ? parseInt(req.query.page) : 1;
+            const offset = (page - 1) * limit;
+            let decodedToken = jwt_decode(req.cookies['refresh-token']);
+            const userId = decodedToken.user.userid; 
+    
+            await queryDb('USE forumDB');
+            const posts = await queryDb(`
+                SELECT p.*, 
+                    EXISTS(
+                        SELECT 1 
+                        FROM likes 
+                        WHERE likes.post_id = p.post_id AND likes.user_id = ?
+                    ) AS liked
+                FROM posts p
+                ORDER BY p.timestamp DESC
+                LIMIT ? OFFSET ?
+            `, [userId, limit, offset]);
+            res.json(posts);
+    
+    
+        }catch(error){
+            console.log(error)
+        }
+    }else{
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
 
-    await queryDb('USE forumDB');
-    const posts = await queryDb(`
-        SELECT p.*, 
-               EXISTS(
-                 SELECT 1 
-                 FROM likes 
-                 WHERE likes.post_id = p.post_id AND likes.user_id = ?
-               ) AS liked
-        FROM posts p
-        ORDER BY p.timestamp DESC
-        LIMIT ? OFFSET ?
-      `, [userId, limit, offset]);
-    res.json(posts);
+        await queryDb('USE forumDB');
+        const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]);
+        res.json(posts);
+    }
+
+    
+    
 });
 
 app.get("/api/comments", validateToken, async (req, res) => {

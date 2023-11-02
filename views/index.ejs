@@ -10,22 +10,24 @@
 
   <div id = "main">
     <header id = "main-nav">
-      <button id = "btn1" onclick="window.location.href='/login'">Log In</button>
-      <button id = "btn2" onclick="window.location.href='/register'">Sign Up</button>
+      <button id = "btn1" onclick="window.location.href='/register'">Sign Up</button>
+      <button id = "btn2" onclick="window.location.href='/login'">Log In</button>
     </header>
   </div>
   
   <div id="login-pop">
     <div class="search-nav">
-      <form action="" id = "form" method = "POST">
-        <input type="text" id = "search-bar" placeholder="Search..">
+      <form action="" id = "searchForm" method = "POST">
+        <input type="text" id = "search-bar" placeholder="Search.." name="search_val">
         <button type="submit" id = "search-button" name = 'action' value = 'search'>Go</button>
       <button id = "create-post" type = 'button' name = 'action' value = 'post'  onclick="window.location.href='/new-post'">New Post</button>
     </form>
     
-      <!-- Initial posts can be pre-rendered here if desired -->
+      
   </div>
+  
   <div id="postsContainer"></div>
+  
   </div>
 
 
@@ -34,103 +36,180 @@
   
   <script>
     let currentPage = 1;
-    let isLoading = false;
-    let morePostsAvailable = true;  // New flag to check if more posts are left
+    let isLoading = false; // Flag to check if the server is currently loading more posts from the db
+    let morePostsAvailable = true; // Flag to check if there are more posts available
+    let searchMode = false;  // Flag to check if search mode is active
+    let lastSearchQuery = ''; // Store the last search query
 
-function debounce(fn, delay) {
-   let timer;
-   return function() {
-       clearTimeout(timer);
-       timer = setTimeout(() => {
-           fn();
-       }, delay);
-   };
+function debounce(fn, delay) { // Debounce function for scroll event listener
+    let timer;
+    return function() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn();
+        }, delay);
+    };
 }
 
-function nearBottomOfPage() {
-   return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
+function nearBottomOfPage() { // Function to check if the user has scrolled to the bottom of page
+    return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 }
 
-function loadPosts() {
-   if (isLoading || !morePostsAvailable) return;
+function loadPosts(searchQuery = '') { // Function that loads posts to front page
+    if (isLoading || !morePostsAvailable) return;
 
-   isLoading = true;
+    isLoading = true;
 
-   const loadingIndicator = document.createElement("div");
-   loadingIndicator.textContent = "Loading...";
-   loadingIndicator.id = "loading-indicator";
-   postsContainer.appendChild(loadingIndicator);
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.textContent = "Loading...";
+    loadingIndicator.id = "loading-indicator";
+    postsContainer.appendChild(loadingIndicator);
 
-   fetch(`/api/posts?page=${currentPage}`)
-       .then(response => response.json())
-       .then(posts => {
-           isLoading = false;
-           if (posts.length > 0) {
-               posts.forEach(post => {
-                   const postElement = document.createElement("div");
-                   postElement.classList.add("post-item");
-                   postElement.setAttribute("data-post-id", post.post_id);
+    let url = `/api/posts?page=${currentPage}`;
+    if (searchMode && searchQuery) {
+        url = `/api/search?query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
+    }
 
-                   const postTitle = document.createElement("h1");
-                   postTitle.textContent = post.title;
-                   const postContent = document.createElement("p");
-                   postContent.textContent = post.content;
-                   const postTimestamp = document.createElement("p");
-                   postTimestamp.textContent = post.timestamp;
+    fetch(url)
+        .then(response => response.json())
+        .then(posts => {
+            isLoading = false;
+            if (posts.length > 0) {
+                posts.forEach(post => {
+                    const postElement = document.createElement("div");
+                    postElement.classList.add("post-item");
+                    postElement.setAttribute("data-post-id", post.post_id);
 
-                   postElement.appendChild(postTitle);
-                   postElement.appendChild(postContent);
-                   postElement.appendChild(postTimestamp);
+                    const postMain = document.createElement("div");
+                    postMain.id = "post-data";
+                    
+                    const postInteract = document.createElement("div");
+                    postInteract.id = "post-interact";
 
-                   postsContainer.appendChild(postElement);
-               });
-               currentPage++;
-               
-               const loadingIndicator = document.getElementById("loading-indicator");
-               if (loadingIndicator) {
-                  loadingIndicator.remove();
-               }
-               
-           } else {
-               morePostsAvailable = false; // No more posts left to fetch
-               const loadingIndicator = document.getElementById("loading-indicator");
-               if (loadingIndicator) {
-                  loadingIndicator.remove();
-               }
-           }
-       })
-       .catch(error => {
-           isLoading = false;
-           console.error('Failed to fetch posts:', error);
+                    const saveIcon = document.createElement("img");
+                    saveIcon.src = "/public/assets/images/save.svg"
+                    saveIcon.classList.add("save-icon"); // Changed from id to class
+                    const likeIcon = document.createElement("img");
+                    likeIcon.src = post.liked ? "/public/assets/images/like2.svg" : "/public/assets/images/like.svg";
+                    likeIcon.classList.add("like-icon"); // Changed from id to class
 
-           const loadingIndicator = document.getElementById("loading-indicator");
-           if (loadingIndicator) {
-               loadingIndicator.remove();
-           }
-       });
+                    postInteract.appendChild(likeIcon);
+                    postInteract.appendChild(saveIcon);
+
+                    const postTitle = document.createElement("h1");
+                    postTitle.textContent = post.title;
+                    const postContent = document.createElement("p");
+                    postContent.textContent = post.content;
+                    const postTimestamp = document.createElement("p");
+                    postTimestamp.textContent = post.timestamp;
+                    
+                    postMain.appendChild(postTitle);
+                    postMain.appendChild(postContent);
+                    postMain.appendChild(postTimestamp);
+                    postElement.appendChild(postMain);
+                    postElement.appendChild(postInteract);
+
+                    postsContainer.appendChild(postElement);
+
+                });
+                currentPage++;
+                
+                const loadingIndicator = document.getElementById("loading-indicator");
+                if (loadingIndicator) {
+                   loadingIndicator.remove();
+                }
+                
+            } else {
+                morePostsAvailable = false; // No more posts left to fetch
+                const loadingIndicator = document.getElementById("loading-indicator");
+                if (loadingIndicator) {
+                   loadingIndicator.remove();
+                }
+            }
+        })
+        .catch(error => {
+            isLoading = false;
+            console.error('Failed to fetch posts:', error);
+
+            const loadingIndicator = document.getElementById("loading-indicator");
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        });
 }
+
+function performSearch() { // Funciton that loads post based on search input
+        const searchQuery = document.getElementById('search-bar').value;
+        if (searchQuery !== lastSearchQuery) {
+            currentPage = 1;
+            morePostsAvailable = true;
+            postsContainer.innerHTML = ''; // Clear existing posts
+        }
+        lastSearchQuery = searchQuery;
+        searchMode = true;
+        loadPosts(searchQuery);
+    }
 
 document.addEventListener('DOMContentLoaded', function() {
-   const postsContainer = document.getElementById("postsContainer");
+    const postsContainer = document.getElementById("postsContainer");
 
-   // Event delegation for posts
-   postsContainer.addEventListener('click', function(e) {
-     let post = e.target.closest('.post-item');
-     if (post) {
-       window.location.href = `/post/${post.dataset.postId}`;
-     }
+    // Event delegation for posts
+    postsContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('like-icon')) {
+        console.log('Like'); // Handle liking posts
+        const post = e.target.closest('.post-item');
+
+        if(post){
+          fetch(`api/like/${post.dataset.postId}`, {method: 'POST'})
+            .then(response => {
+              if(response.ok){
+                console.log("Post liked");
+                e.target.src = "/public/assets/images/like2.svg";
+              }else{
+                console.log("Post unliked");
+                e.target.src = "/public/assets/images/like.svg";
+              }
+            })
+
+            .catch(error => {
+              console.error('Failed to like post:', error);
+            })
+        }
+
+      }else if(e.target.classList.contains('save-icon')) {
+        console.log('Save'); // Handle saving posts
+        return
+      }else if (!e.target.classList.contains('like') && !e.target.classList.contains('save')) {
+    
+        let post = e.target.closest('.post-item');
+        if (post) {
+          window.location.href = `/post/${post.dataset.postId}`;
+        }
+      } 
+
+      
 });
 
-   // Debounce the onScroll function to optimize performance
-   document.addEventListener('scroll', debounce(() => {
-       if (nearBottomOfPage()) {
-           loadPosts();
-       }
-   }, 100));
+      const searchForm = document.getElementById('searchForm');
+      searchForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          performSearch();
+      });
 
-   loadPosts(); // Load the initial posts
+      
+    // Debounce the onScroll function to optimize performance
+    document.addEventListener('scroll', debounce(() => {
+    if (nearBottomOfPage()) {
+        if (searchMode) {
+            loadPosts(lastSearchQuery);
+        } else {
+            loadPosts();
+        }
+    }
+}, 100));
+
+    loadPosts(); // Load the initial posts
 });
- </script>
+  </script>
 </body>
-</html>
 </html>
