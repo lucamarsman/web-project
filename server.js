@@ -104,15 +104,41 @@ app.get('/new-post', validateToken, (req, res) => {
 })
 
 app.get('/api/search', validateToken, async (req, res) => {
-    console.log(req.query.query)
-    const searchVal = `%${req.query.query}%`;
-    const limit = 5; // number of posts per page
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const offset = (page - 1) * limit;
+    if(res.authenticated){
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const userId = decodedToken.user.userid; 
+        const searchVal = `%${req.query.query}%`;
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
 
-    await queryDb('USE forumDB');
-    const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]);
-    res.json(posts);
+        await queryDb('USE forumDB');
+        const posts = await queryDb(`
+            SELECT 
+                Posts.*, 
+                EXISTS (
+                    SELECT 1 
+                    FROM likes 
+                    WHERE likes.post_id = Posts.post_id AND likes.user_id = ?
+                ) AS liked
+            FROM Posts 
+            WHERE content LIKE ? OR title LIKE ? 
+            ORDER BY post_id DESC 
+            LIMIT ? OFFSET ?`, 
+            [userId, searchVal, searchVal, limit, offset]
+        );
+        res.json(posts);
+    }else{
+        const searchVal = `%${req.query.query}%`;
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
+
+        await queryDb('USE forumDB');
+        const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]);
+        res.json(posts);
+    }
+    
     
 })
 
@@ -233,7 +259,7 @@ app.post('/api/like/:postId', validateToken, async function(req, res) {
             res.status(500).send({ success: false, message: 'Internal Server Error' });
         }
     } else {
-        res.redirect('/login');
+        res.sendStatus(401); // Send 401 back to client which redirects to login if not logged in and like button is clicked
     }
 });
 
