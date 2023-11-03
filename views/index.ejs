@@ -138,7 +138,7 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
         });
 }
 
-function performSearch() { // Funciton that loads post based on search input
+function performSearch() { // Function that loads post based on search input
         const searchQuery = document.getElementById('search-bar').value;
         if (searchQuery !== lastSearchQuery) {
             currentPage = 1;
@@ -160,9 +160,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const post = e.target.closest('.post-item');
 
         if(post){
-          fetch(`api/like/${post.dataset.postId}`, {method: 'POST'})
+          fetch(`api/like/${post.dataset.postId}`, {method: 'POST', credentials: 'include'})
             .then(response => {
-              if(response.ok){
+              if(response.status === 401){
+                window.location.href = '/login';
+              }
+              else if(response.ok){
                 console.log("Post liked");
                 e.target.src = "/public/assets/images/like2.svg";
               }else{
