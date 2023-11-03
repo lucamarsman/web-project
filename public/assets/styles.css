@@ -247,3 +247,11 @@ body{
   height:35px;
   width:35px;
 }
+
+.save-icon{
+  float:right;
+}
+
+#post-interact{
+  margin-top:15px;
+}
