@@ -55,7 +55,8 @@ function nearBottomOfPage() {
  return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 }
 
-function loadPosts() {
+const postId = window.location.pathname.split('/')[2];
+function loadPosts(postId) {
  if (isLoading || !morePostsAvailable) return;
 
  isLoading = true;
@@ -67,7 +68,7 @@ function loadPosts() {
 
  console.log(comments)
 
- fetch(`/api/comments?page=${currentPage}`)
+ fetch(`/api/comments/${postId}?page=${currentPage}`)
      .then(response => response.json())
      .then(comments => {
          isLoading = false;
@@ -115,12 +116,12 @@ function loadPosts() {
 
 document.addEventListener('DOMContentLoaded', function() {
  const commentsContainer = document.getElementById("commentsContainer");
- //add click event here
+ loadPosts(postId)
 
  // Debounce the onScroll function to optimize performance
  document.addEventListener('scroll', debounce(() => {
      if (nearBottomOfPage()) {
-         loadPosts();
+         loadPosts(postId);
      }
  }, 100));
 
