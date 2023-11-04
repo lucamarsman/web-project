@@ -120,12 +120,17 @@ app.get('/api/search', validateToken, async (req, res) => {
                     SELECT 1 
                     FROM likes 
                     WHERE likes.post_id = Posts.post_id AND likes.user_id = ?
-                ) AS liked
+                ) AS liked,
+                EXISTS (
+                    SELECT 1 
+                    FROM saves 
+                    WHERE saves.post_id = Posts.post_id AND saves.user_id = ?
+                ) AS saved
             FROM Posts 
             WHERE content LIKE ? OR title LIKE ? 
             ORDER BY post_id DESC 
             LIMIT ? OFFSET ?`, 
-            [userId, searchVal, searchVal, limit, offset]
+            [userId, userId, searchVal, searchVal, limit, offset]
         );
         res.json(posts);
     }else{
@@ -140,7 +145,7 @@ app.get('/api/search', validateToken, async (req, res) => {
     }
     
     
-})
+});
 
 app.get("/api/posts", validateToken, async (req, res) => {
     if(res.authenticated){
@@ -153,16 +158,22 @@ app.get("/api/posts", validateToken, async (req, res) => {
     
             await queryDb('USE forumDB');
             const posts = await queryDb(`
-                SELECT p.*, 
+                SELECT 
+                    p.*, 
                     EXISTS(
                         SELECT 1 
                         FROM likes 
                         WHERE likes.post_id = p.post_id AND likes.user_id = ?
-                    ) AS liked
+                    ) AS liked,
+                    EXISTS(
+                        SELECT 1 
+                        FROM saves 
+                        WHERE saves.post_id = p.post_id AND saves.user_id = ?
+                    ) AS saved
                 FROM posts p
                 ORDER BY p.timestamp DESC
                 LIMIT ? OFFSET ?
-            `, [userId, limit, offset]);
+            `, [userId, userId, limit, offset]);
             res.json(posts);
     
     
@@ -272,6 +283,44 @@ async function likePost(postId, userId) {
         } else {
             await queryDb('INSERT INTO likes (user_id, post_id) VALUES (?,?)', [userId, postId]);
             return { alreadyLiked: false };
+        }
+    } catch (error) {
+        throw error; 
+    }
+}
+
+app.post('/api/save/:postId', validateToken, async function(req, res) {
+    if(res.authenticated){
+        const postId = req.params.postId;
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const userId = decodedToken.user.userid; 
+        
+        try {
+            const saveResult = await savePost(postId, userId);
+            if (saveResult.alreadySaved) {
+                res.status(300).send({ success: true, message: 'Post unsaved' });
+                await queryDb('DELETE FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]);
+            } else {
+                res.status(200).send({ success: true, message: 'Post saved successfully' });
+            }
+        } catch (error) {
+            console.error('Error saving post:', error);
+            res.status(500).send({ success: false, message: 'Internal Server Error' });
+        }
+    } else {
+        res.sendStatus(401); // Send 401 back to client which redirects to login if not logged in and like button is clicked
+    }
+});
+
+async function savePost(postId, userId) {
+    try {
+        const rows = await queryDb('SELECT * FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]); 
+        if(rows.length > 0){
+            console.log("Post already saved");
+            return { alreadySaved: true };
+        } else {
+            await queryDb('INSERT INTO saves (user_id, post_id) VALUES (?,?)', [userId, postId]);
+            return { alreadySaved: false };
         }
     } catch (error) {
         throw error; 
