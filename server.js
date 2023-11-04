@@ -194,13 +194,16 @@ app.get("/api/posts", validateToken, async (req, res) => {
     
 });
 
-app.get("/api/comments", validateToken, async (req, res) => {
+app.get("/api/comments/:postId",  async (req, res) => {
+    const postId = req.params.postId;
+    console.log(postId)
+
     const limit = 5; // number of posts per page
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const offset = (page - 1) * limit;
 
     await queryDb('USE forumDB');
-    const comments = await queryDb('SELECT * FROM Comments ORDER BY comment_id DESC LIMIT ? OFFSET ?', [limit, offset]);
+    const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ? ORDER BY comment_id DESC LIMIT ? OFFSET ?', [postId, limit, offset]);
     res.json(comments);
 });
 
