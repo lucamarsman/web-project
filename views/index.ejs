@@ -180,8 +180,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
       }else if(e.target.classList.contains('save-icon')) {
-        console.log('Save'); // Handle saving posts
-        return
+        console.log('Save'); 
+        const post = e.target.closest('.post-item');
+
+        if(post){
+          fetch(`api/save/${post.dataset.postId}`, {method: 'POST'})
+            .then(response => {
+              if(response.status === 401){
+                window.location.href = '/login';
+              }
+              else if(response.ok){
+                console.log("Post saved");
+                e.target.src = "/public/assets/images/save2.svg";
+              }else{
+                console.log("Post unsaved");
+                e.target.src = "/public/assets/images/save.svg";
+              }
+            })
+
+            .catch(error => {
+              console.error('Failed to save post:', error);
+            })
+        }
       }else if (!e.target.classList.contains('like') && !e.target.classList.contains('save')) {
     
         let post = e.target.closest('.post-item');
