@@ -15,12 +15,122 @@
 </div>
 
 <div id="login-pop">
-    <img id ="profile-picture">
-    <h1 id="username"><%= username %></h1>
-    <p id="email"><%= email %></p>
-    <p id="date-joined"><%= dateJoined %></p>
+  <div id = "profile-top">
+    <div id ="image">
+      <h1 id="username"><%= username %></h1>
+      <img id ="profile-picture">
+      <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="profilePic" id="profilePic" accept="image/*" />
+        <input type="button" value="Upload" onclick="uploadImage()"/>
+      </form>
+      <p id="date-joined">Member since: <%= dateJoined %></p>
+    </div>
+
+    <div id = "bio-area">
+    <button onclick="editProfile()" id="profileButton">Edit Profile</button>
+    <textarea id ="bio" readonly></textarea>
+    </div>
+
+  </div>
+
+  <div id="postsContainer">
+
+  </div>
+
+<script>
+
+  fetch('/profile/profile-image')
+  .then(response => response.json())
+  .then(imagePath => {
+    if(imagePath == ""){
+      document.getElementById("profile-picture").src = "public/assets/images/default-profile.png";
+    }else{
+      document.getElementById("profile-picture").src = imagePath[0].image_path;
+    }
+  })
+
+  fetch('/profile/load-bio')
+  .then(response => response.json())
+  .then(bio => {
+    document.getElementById("bio").innerHTML = bio[0].bio;
+  })
+  
+  let uploadedImageFile = null; // This will hold the file to upload when saving
+
+  function uploadImage(){
+    const profilePicInput = document.getElementById('profilePic');
+    if (profilePicInput.files.length > 0) {
+      uploadedImageFile = profilePicInput.files[0]; // Keep a reference to the file
+      const imageUrl = URL.createObjectURL(uploadedImageFile); // Create a URL for the file
+      document.getElementById("profile-picture").src = imageUrl; // Set the src to the local file URL
+    }
+  }
+
+  function editProfile(){
+    const btn = document.getElementById("profileButton");
+    const picUpload = document.getElementById("uploadForm")
+    const bioData = document.getElementById("bio").innerHTML;
+
+    btn.innerHTML = "Save";
+    btn.onclick = function() { saveProfile(); };
+    picUpload.style.visibility = "visible";
+    document.getElementById('bio').removeAttribute('readonly');
+
+  }
+
+  function saveProfile(){
+    const btn = document.getElementById("profileButton");
+    const picUpload = document.getElementById("uploadForm")
+    const bioData = document.getElementById("bio").innerHTML;
+
+    btn.innerHTML = "Edit Profile";
+    btn.onclick = function() { editProfile(); };
+    picUpload.style.visibility = "hidden";
+    document.getElementById('bio').setAttribute('readonly', '');
+
+    if (uploadedImageFile) {
+    const formData = new FormData();
+    formData.append('profilePic', uploadedImageFile);
+    
+    fetch('/profile/upload-profile-image', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // The file has now been uploaded to the server and saved
+        alert('Profile and image saved successfully');
+      } else {
+        alert('Failed to save image');
+      }
+    })
+    .catch(error => {
+      console.error('Error uploading file:', error);
+    });
+  }
+
+    fetch('/profile/save', {
+      method: 'POST',
+      body: JSON.stringify({ bio: bio.value }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+          alert('Profile saved successfully');
+      } else {
+        alert('Failed to save profile');
+        }
+    })
+   .catch(error => {
+     console.error('Error saving profile:', error);
+ });
+
+  }
 
 
+</script>
 
 </div>
 
