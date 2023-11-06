@@ -157,23 +157,30 @@ app.get("/api/posts", validateToken, async (req, res) => {
             const userId = decodedToken.user.userid; 
     
             await queryDb('USE forumDB');
+
             const posts = await queryDb(`
-                SELECT 
-                    p.*, 
-                    EXISTS(
-                        SELECT 1 
-                        FROM likes 
-                        WHERE likes.post_id = p.post_id AND likes.user_id = ?
-                    ) AS liked,
-                    EXISTS(
-                        SELECT 1 
-                        FROM saves 
-                        WHERE saves.post_id = p.post_id AND saves.user_id = ?
-                    ) AS saved
-                FROM posts p
-                ORDER BY p.timestamp DESC
-                LIMIT ? OFFSET ?
-            `, [userId, userId, limit, offset]);
+            SELECT 
+                p.post_id,
+                p.title,
+                p.content,
+                p.timestamp,
+                p.user_id,
+                u.username,   
+                EXISTS(
+                    SELECT 1 
+                    FROM likes 
+                    WHERE likes.post_id = p.post_id AND likes.user_id = ?
+                ) AS liked,
+                EXISTS(
+                    SELECT 1 
+                    FROM saves 
+                    WHERE saves.post_id = p.post_id AND saves.user_id = ?
+                ) AS saved
+            FROM posts p
+            JOIN Users u ON p.user_id = u.user_id   
+            ORDER BY p.timestamp DESC
+            LIMIT ? OFFSET ?
+        `, [userId, userId, limit, offset]);
             res.json(posts);
     
     
