@@ -10,6 +10,7 @@ const { getOAuthAccessToken} = require('./OAuth')
 const crypto = require('crypto');
 const { JsonWebTokenError } = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode")
+const multer = require('multer');
 
 //initialize database connection
 const db = mysql2.createConnection({
@@ -24,12 +25,27 @@ db.connect(err => {
     }
     console.log("Database connected")
 });
+
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }))
 app.engine('html', require('ejs').renderFile);
 app.set('view-engine', 'html')
 app.use('/public', express.static('public'));
 app.use(express.json())
+app.use('/uploads', express.static('public/uploads'));
+
+//Multer configuartion for profile picture storage
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+      cb(null, 'public/uploads/')
+    },
+    filename: function(req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
+    }
+});
+
+const upload = multer({ storage: storage });
 
 //render html on index, register, login pages
 app.get("/", validateToken, async (req, res) => {
@@ -84,6 +100,24 @@ app.get("/profile", validateToken, async (req, res) => {
         res.redirect('/login');
     }
 });
+
+app.post("/profile/save", validateToken, async (req, res) => {
+    let decodedToken = jwt_decode(req.cookies['refresh-token'])
+    const uid = decodedToken.user.userid; 
+    
+    await queryDb("USE forumDB")
+    await queryDb("UPDATE Users SET bio = ? WHERE user_id = ?", [req.body.bio, uid])
+    
+})
+
+app.get("/profile/load-bio", validateToken, async (req,res) => {
+    let decodedToken = jwt_decode(req.cookies['refresh-token'])
+    const uid = decodedToken.user.userid; 
+
+    await queryDb("USE forumDB")
+    const bio = await queryDb("SELECT bio FROM Users WHERE user_id = ?", [uid])
+    res.json(bio)
+})
 
 app.get('/reset', (req, res) => {
     res.render('reset.html')
@@ -145,6 +179,40 @@ app.get('/api/search', validateToken, async (req, res) => {
     }
     
     
+});
+
+app.get('/profile/profile-image', validateToken, async (req,res) =>{
+    let decodedToken = jwt_decode(req.cookies['refresh-token']);
+    const userId = decodedToken.user.userid; 
+
+    const imageURL = await queryDb("SELECT image_path FROM ProfilePictures WHERE user_id = ?", [userId]);
+    res.json(imageURL)
+})
+
+app.post('/profile/upload-profile-image', upload.single('profilePic'), async (req, res) => {
+    try {
+      if (req.file) {
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const userId = decodedToken.user.userid;
+        await queryDb('USE forumDB');
+        const picQuery = await queryDb('SELECT * FROM ProfilePictures WHERE user_id = ?', [userId]);
+        console.log(picQuery.length)
+        if (picQuery.length === 0) {
+          await queryDb("INSERT INTO ProfilePictures (image_path, user_id) VALUES (?, ?)", [req.file.path, userId]);
+        } else {
+          await queryDb("UPDATE ProfilePictures SET image_path = ? WHERE user_id = ?", [req.file.path, userId]);
+        }
+    
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        
+        res.json({ success: true, filePath: imageUrl });
+      } else {
+        res.json({ success: false, message: "No file uploaded." });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Internal server error." });
+    }
 });
 
 app.get("/api/posts", validateToken, async (req, res) => {
