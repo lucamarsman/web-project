@@ -255,3 +255,37 @@ body{
 #post-interact{
   margin-top:15px;
 }
+
+#profile-picture{
+  height:250px;
+  width:250px;
+}
+
+#profile-top{
+  display: flex;
+  border-bottom-style: solid;
+}
+
+#image{
+  width:40%;
+  padding: 30px;
+}
+
+#bio{
+  resize: none;
+  margin-top:25px;
+  height:250px;
+}
+
+#uploadForm{
+  visibility: hidden;
+}
+
+#bio-area{
+  display:flex;
+  flex-direction: column;
+  width:100%;
+  padding: 30px;
+  width:60%;
+}
+
