@@ -37,11 +37,15 @@
 
   </div>
 
-<script>
 
+  <script src="/public/loadPostHistory.js"></script>
+
+  <script>
+  
   fetch('/profile/profile-image')
   .then(response => response.json())
   .then(imagePath => {
+    console.log(imagePath[0].image_path)
     if(imagePath == ""){
       document.getElementById("profile-picture").src = "public/assets/images/default-profile.png";
     }else{
