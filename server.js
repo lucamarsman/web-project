@@ -104,33 +104,38 @@ app.get("/profile", validateToken, async (req, res) => {
 
 app.get("/view/:username/profile", validateToken, async (req, res) => {
     await queryDb('USE forumDB');
-    const username = req.params.username 
+    const username = req.params.username;
 
-    if(res.authenticated){
-        let decodedToken = jwt_decode(req.cookies['refresh-token'])
-        const uid = decodedToken.user.userid; 
+    if (res.authenticated) {
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const uid = decodedToken.user.userid;
         const profileId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
 
-        try{
-            if(profileId[0].user_id == uid){
-                res.redirect('/profile')
-            }
-        }catch(error){
-            console.log(error)
+        // Check if profileId is not empty and user_id matches
+        if (profileId.length > 0 && profileId[0].user_id == uid) {
+            return res.redirect('/profile');
         }
-        
     }
-    
 
+    try {
         const dateResult = await queryDb('SELECT registration_date FROM Users WHERE username = ?', [username]);
         const bioResult = await queryDb('SELECT bio FROM Users WHERE username = ?', [username]);
 
-        res.render('viewProfile.ejs', {
-            username: username,   
-            dateJoined: dateResult[0].registration_date,
-            bioData: bioResult[0].bio  
-        });
-
+        // Check if dateResult and bioResult have data before attempting to render
+        if (dateResult.length > 0 && bioResult.length > 0) {
+            return res.render('viewProfile.ejs', {
+                username: username,
+                dateJoined: dateResult[0].registration_date,
+                bioData: bioResult[0].bio  
+            });
+        } else {
+            // Handle user not found or missing data
+            return res.status(404).send('User not found or incomplete profile');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('An error occurred');
+    }
 });
 
 app.get('/profile/:username/profile-image', validateToken, async (req,res) =>{
@@ -307,15 +312,17 @@ app.get("/api/posts", validateToken, async (req, res) => {
 
 });
 
-app.get("/api/post-history", validateToken, async (req, res) => { // WIP for laoding user post history
+app.get("/api/post-history/:username", validateToken, async (req, res) => { // WIP for laoding user post history
     try{
         const limit = 5; // number of posts per page
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const offset = (page - 1) * limit;
-        let decodedToken = jwt_decode(req.cookies['refresh-token']);
-        const userId = decodedToken.user.userid; 
+        const username = req.params.username;
+
+        
 
         await queryDb('USE forumDB');
+        const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
 
         const posts = await queryDb(`
         SELECT 
@@ -324,12 +331,13 @@ app.get("/api/post-history", validateToken, async (req, res) => { // WIP for lao
             p.content,
             p.timestamp,
             p.user_id,
-            u.username,   
-        FROM posts p WHERE user_id = ?
-        JOIN Users u ON p.user_id = u.user_id   
+            u.username
+        FROM posts p
+        JOIN Users u ON p.user_id = u.user_id
+        WHERE p.user_id = ?
         ORDER BY p.timestamp DESC
         LIMIT ? OFFSET ?
-    `, [userId, limit, offset]);
+    `, [userId[0].user_id, limit, offset]);
         res.json(posts);
 
 
