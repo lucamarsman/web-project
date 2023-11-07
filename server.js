@@ -88,18 +88,58 @@ app.get("/profile", validateToken, async (req, res) => {
 
         await queryDb('USE forumDB');
         const username = await queryDb('SELECT username FROM Users WHERE user_id = ?', [uid]);
-        const email = await queryDb('SELECT email FROM Users WHERE user_id = ?', [uid]);
+        const bioData = await queryDb('SELECT bio FROM Users WHERE user_id = ?', [uid]);
         const dateJoined = await queryDb('SELECT registration_date FROM Users WHERE user_id = ?', [uid]);
 
         res.render('profile.ejs', {
-            username: username[0].username,  
-            email: email[0].email,  
-            dateJoined: dateJoined[0].registration_date  
+            username: username[0].username,   
+            dateJoined: dateJoined[0].registration_date,
+            bioData: bioData[0].bio
         });        
     } else {
         res.redirect('/login');
     }
 });
+
+
+app.get("/view/:username/profile", validateToken, async (req, res) => {
+    await queryDb('USE forumDB');
+    const username = req.params.username 
+
+    if(res.authenticated){
+        let decodedToken = jwt_decode(req.cookies['refresh-token'])
+        const uid = decodedToken.user.userid; 
+        const profileId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
+
+        try{
+            if(profileId[0].user_id == uid){
+                res.redirect('/profile')
+            }
+        }catch(error){
+            console.log(error)
+        }
+        
+    }
+    
+
+        const dateResult = await queryDb('SELECT registration_date FROM Users WHERE username = ?', [username]);
+        const bioResult = await queryDb('SELECT bio FROM Users WHERE username = ?', [username]);
+
+        res.render('viewProfile.ejs', {
+            username: username,   
+            dateJoined: dateResult[0].registration_date,
+            bioData: bioResult[0].bio  
+        });
+
+});
+
+app.get('/profile/:username/profile-image', validateToken, async (req,res) =>{
+    const username = req.params.username;
+    const userId = await queryDb("SELECT user_id FROM Users WHERE username = ?", [username]);
+
+    const imageURL = await queryDb("SELECT image_path FROM ProfilePictures WHERE user_id = ?", [userId[0].user_id]);
+    res.json(imageURL)
+})
 
 app.post("/profile/save", validateToken, async (req, res) => {
     let decodedToken = jwt_decode(req.cookies['refresh-token'])
@@ -265,8 +305,39 @@ app.get("/api/posts", validateToken, async (req, res) => {
         res.json(posts);
     }
 
-    
-    
+});
+
+app.get("/api/post-history", validateToken, async (req, res) => { // WIP for laoding user post history
+    try{
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
+        let decodedToken = jwt_decode(req.cookies['refresh-token']);
+        const userId = decodedToken.user.userid; 
+
+        await queryDb('USE forumDB');
+
+        const posts = await queryDb(`
+        SELECT 
+            p.post_id,
+            p.title,
+            p.content,
+            p.timestamp,
+            p.user_id,
+            u.username,   
+        FROM posts p WHERE user_id = ?
+        JOIN Users u ON p.user_id = u.user_id   
+        ORDER BY p.timestamp DESC
+        LIMIT ? OFFSET ?
+    `, [userId, limit, offset]);
+        res.json(posts);
+
+
+    }catch(error){
+        console.log(error)
+    }
+
+
 });
 
 app.get("/api/comments/:postId",  async (req, res) => {
