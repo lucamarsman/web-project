@@ -26,7 +26,9 @@ function loadPosts() { // Function that loads posts to front page
     loadingIndicator.id = "loading-indicator";
     postsContainer.appendChild(loadingIndicator);
 
-    fetch(`/api/posts?page=${currentPage}`)
+    const username = document.getElementById("username").textContent
+
+    fetch(`/api/post-history/${username}/?page=${currentPage}`)
         .then(response => response.json())
         .then(posts => {
             isLoading = false;
