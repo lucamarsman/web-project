@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title> Homepage </title>
+  <link rel="stylesheet" type="text/css" href="/public/assets/styles.css" title="style" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div id = "main">
+  <header id = "main-nav">
+    <p>Homepage</p>
+  </header>
+</div>
+
+<div id="login-pop">
+  <div id = "profile-top">
+    <div id ="image">
+      <h1 id="username"><%= username %></h1>
+      <img id ="profile-picture">
+      <p id="date-joined">Member since: <%= dateJoined %></p>
+    </div>
+
+    <div id = "bio-area">
+    <textarea id ="bio" readonly><%= bioData %></textarea>
+    </div>
+
+  </div>
+
+  <div id="postsContainer">
+
+  </div>
+
+
+  <script src="/public/loadPostHistory.js"></script>
+
+  <script>
+
+    const username = window.location.pathname.split('/')[2];
+
+    fetch(`/profile/${username}/profile-image`)
+    .then(response => response.json())
+    .then(imagePath => {
+        if(imagePath == ""){
+        document.getElementById("profile-picture").src = "public/assets/images/default-profile.png";
+        }else{
+        document.getElementById("profile-picture").src = "/" + imagePath[0].image_path;
+        }
+     })
+
+
+
+
+
+  </script>
+
+</div>
+
+
+</body>
+</html>
