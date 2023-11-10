@@ -278,6 +278,7 @@ app.get("/api/posts", validateToken, async (req, res) => {
                 p.content,
                 p.timestamp,
                 p.user_id,
+                p.likeCount,
                 u.username,   
                 EXISTS(
                     SELECT 1 
