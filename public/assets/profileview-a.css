@@ -1,0 +1,139 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f2;
+    color: #333;
+}
+
+/* Header Styling */
+#main-nav {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+#main-nav p {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Profile Section Styling */
+#login-pop {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#edit-button-container {
+    text-align: right;
+    padding: 10px;
+}
+
+/* CSS for Profile Top Section */
+#profile-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#profile-top #image {
+    /* Centering profile image */
+    margin: 0 auto;
+}
+
+#profile-picture {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+#uploadForm {
+    visibility: hidden;
+}
+
+#bio-area {
+    flex-grow: 1;
+}
+
+#bio {
+    width: 100%; /* Adjust width to fit the container */
+    max-width: 100%; /* Prevent overflow */
+    height:150px;
+    padding: 10px;
+    margin-bottom: 20px; /* Space below the textarea */
+    box-sizing: border-box; /* Include padding and border in width */
+    padding: 10px;
+    border: 1px solid #ddd;
+    resize: none;
+    
+}
+
+/* Button Styling */
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Active Button Highlight */
+.active {
+    background-color: #007bff;
+}
+
+/* Posts Container */
+#postsContainer {
+    margin-top: 20px;
+}
+
+.post-item {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+#post-data {
+    text-align: left;
+}
+
+.post-header h1 {
+    margin-top: 0;
+}
+
+.poster {
+    color: #007bff;
+    font-style: italic;
+}
+
+
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+    #profile-top {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #bio-area {
+        margin-top: 20px;
+    }
+}

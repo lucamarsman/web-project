@@ -1,0 +1,105 @@
+/* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f2;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Styling */
+#main-nav {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+#main-nav button {
+    background-color: #0069d9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#main-nav button:hover {
+    background-color: #0056b3;
+}
+
+/* Post Data Styling */
+#login-pop {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#post-data {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+#title {
+    font-size: 24px;
+    color: #007bff;
+}
+
+#content, #timestamp {
+    margin-top: 10px;
+}
+
+/* New Comment Form Styling */
+#new-comment form {
+    margin-top: 20px;
+}
+
+#newcomment {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 100px;
+    resize: vertical;
+}
+
+#post-comment {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#post-comment:hover {
+    background-color: #218838;
+}
+
+/* Comments Display Styling */
+#commentsContainer {
+    margin-top: 20px;
+}
+
+.post-item {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #login-pop {
+        width: 95%;
+        margin: 10px auto;
+    }
+}

@@ -1,0 +1,124 @@
+/* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Main Container */
+#main {
+    width: 100%;
+    text-align: center;
+    margin: auto;
+}
+
+/* Header Styling */
+#main-nav {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 0;
+}
+
+#main-nav button {
+    background-color: #0069d9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#main-nav button:hover {
+    background-color: #0056b3;
+}
+
+/* Search Bar Styling */
+#login-pop {
+    padding: 20px;
+    text-align: center;
+}
+
+#searchForm {
+    display: inline-block;
+}
+
+#search-bar {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    width: 300px;
+}
+
+#search-button, #create-post {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-left: -5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#search-button:hover, #create-post:hover {
+    background-color: #218838;
+}
+
+#postsContainer {
+    width: 80%;
+    margin: 20px auto;
+}
+
+.post-item {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#post-data {
+    text-align: left;
+}
+
+.post-header h1 {
+    margin: 0;
+}
+
+.poster {
+    color: #007bff;
+    font-style: italic;
+}
+
+/* Updated Interaction Icons */
+#post-interact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Span the entire width */
+}
+
+.like-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.like-count {
+    margin-right: 10px; /* Adjust as needed */
+    display: inline-block; /* Align with the icon */
+}
+
+.save-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-left: auto; /* Push to the right */
+}
