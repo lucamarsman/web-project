@@ -28,16 +28,19 @@
 
   </div>
 
+  <div id="buttonContainer">
+    <button id="postHistory">Post History</button>
+    <button id="commentHistory">Comment History</button>
+  </div>
+
   <div id="postsContainer">
 
   </div>
 
 
-  <script src="/public/loadPostHistory.js"></script>
+  <script src="/public/loadPostData.js"></script>
 
   <script>
-
-    const username = window.location.pathname.split('/')[2];
 
     fetch(`/profile/${username}/profile-image`)
     .then(response => response.json())
