@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <title> Homepage </title>
-  <link rel="stylesheet" type="text/css" href="/public/assets/styles.css" title="style" />
+  <link rel="stylesheet" type="text/css" href="/public/assets/profileview-a.css" title="style" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
@@ -15,6 +15,10 @@
 </div>
 
 <div id="login-pop">
+  <div id="edit-button-container">
+    <button onclick="editProfile()" id="profileButton">Edit Profile</button>
+  </div>
+  
   <div id = "profile-top">
     <div id ="image">
       <h1 id="username"><%= username %></h1>
@@ -25,13 +29,13 @@
       </form>
       <p id="date-joined">Member since: <%= dateJoined %></p>
     </div>
+    
 
-    <div id = "bio-area">
-    <button onclick="editProfile()" id="profileButton">Edit Profile</button>
-    <textarea id ="bio" readonly></textarea>
-    </div>
+    
 
   </div>
+
+  <textarea id ="bio" readonly></textarea>
 
   <div id="buttonContainer">
     <button id="postHistory">Post History</button>
