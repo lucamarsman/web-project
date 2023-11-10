@@ -49,6 +49,9 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     const postInteract = document.createElement("div");
                     postInteract.id = "post-interact";
 
+                    const likeCount = document.createElement("p");
+                    likeCount.textContent = post.likeCount;
+
                     const saveIcon = document.createElement("img");
                     saveIcon.src = post.saved ? "/public/assets/images/save2.svg" : "/public/assets/images/save.svg";
                     saveIcon.classList.add("save-icon"); // Changed from id to class
@@ -57,6 +60,7 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     likeIcon.classList.add("like-icon"); // Changed from id to class
 
                     postInteract.appendChild(likeIcon);
+                    postInteract.appendChild(likeCount);
                     postInteract.appendChild(saveIcon);
 
                     const postHeader = document.createElement("div")
