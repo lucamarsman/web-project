@@ -312,14 +312,12 @@ app.get("/api/posts", validateToken, async (req, res) => {
 
 });
 
-app.get("/api/post-history/:username", validateToken, async (req, res) => { // WIP for laoding user post history
+app.get("/api/post-history/:username", validateToken, async (req, res) => {
     try{
         const limit = 5; // number of posts per page
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const offset = (page - 1) * limit;
         const username = req.params.username;
-
-        
 
         await queryDb('USE forumDB');
         const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
@@ -345,6 +343,108 @@ app.get("/api/post-history/:username", validateToken, async (req, res) => { // W
         console.log(error)
     }
 
+});
+
+app.get("/api/post-comment-history/:username", validateToken, async (req, res) => {
+    try{
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
+        const username = req.params.username;
+
+        await queryDb('USE forumDB');
+        const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
+
+        const posts = await queryDb(`
+        SELECT 
+            c.comment_id,
+            c.content,
+            c.timestamp,
+            c.user_id,
+            u.username,
+            p.post_id,
+            p.title as post_title
+        FROM Comments c
+        JOIN Users u ON c.user_id = u.user_id
+        JOIN Posts p ON c.post_id = p.post_id
+        WHERE c.user_id = ?
+        ORDER BY c.timestamp DESC
+        LIMIT ? OFFSET ?
+    `, [userId[0].user_id, limit, offset]);
+        res.json(posts);
+
+
+    }catch(error){
+        console.log(error)
+    }
+
+});
+
+app.get("/api/post-like-history/:username", validateToken, async (req, res) => {
+    try{
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
+        const username = req.params.username;
+
+        await queryDb('USE forumDB');
+        const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
+
+        const posts = await queryDb(`
+            SELECT 
+                p.post_id,
+                p.title,
+                p.content,
+                p.timestamp,
+                p.user_id,
+                u.username
+            FROM likes l
+            JOIN Posts p ON l.post_id = p.post_id
+            JOIN Users u ON p.user_id = u.user_id
+            WHERE l.user_id = ?
+            ORDER BY p.timestamp DESC
+            LIMIT ? OFFSET ?
+        `, [userId[0].user_id, limit, offset]);
+        res.json(posts);
+
+
+    }catch(error){
+        console.log(error)
+    }
+
+});
+
+app.get("/api/post-save-history/:username", validateToken, async (req, res) => {
+    try{
+        const limit = 5; // number of posts per page
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const offset = (page - 1) * limit;
+        const username = req.params.username;
+
+        await queryDb('USE forumDB');
+        const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
+
+        const posts = await queryDb(`
+            SELECT 
+                p.post_id,
+                p.title,
+                p.content,
+                p.timestamp,
+                p.user_id,
+                u.username
+            FROM saves s
+            JOIN Posts p ON s.post_id = p.post_id
+            JOIN Users u ON p.user_id = u.user_id
+            WHERE s.user_id = ?
+            ORDER BY p.timestamp DESC
+            LIMIT ? OFFSET ?
+        `, [userId[0].user_id, limit, offset]);
+        res.json(posts);
+
+
+    }catch(error){
+        console.log(error)
+    }
 
 });
 
