@@ -29,7 +29,7 @@ function loadComments(postId) {
 
  console.log(comments)
 
- fetch(`/api/comments/${postId}?page=${currentPage}`)
+ fetch(`/comments/${postId}?page=${currentPage}`)
      .then(response => response.json())
      .then(comments => {
          isLoading = false;

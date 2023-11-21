@@ -28,7 +28,7 @@ function loadPosts() { // Function that loads posts to front page
 
     const username = document.getElementById("username").textContent
 
-    fetch(`/api/post-history/${username}/?page=${currentPage}`)
+    fetch(`/posts/post-history/${username}/?page=${currentPage}`)
         .then(response => response.json())
         .then(posts => {
             isLoading = false;

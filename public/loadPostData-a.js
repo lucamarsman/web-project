@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
       currentCategory = 'post-history';
 
       document.getElementById('postsContainer').innerHTML = '';
-      loadPosts(`/api/post-history/${username}/?page=${currentPage}`);
+      loadPosts(`posts/post-history/${username}/?page=${currentPage}`);
     });
 
     commentHistory.addEventListener("click", function() {
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
       currentCategory = 'comment-history';
 
       document.getElementById('postsContainer').innerHTML = '';
-      loadPosts(`/api/post-comment-history/${username}/?page=${currentPage}`)
+      loadPosts(`/comments/post-comment-history/${username}/?page=${currentPage}`)
     });
 
     likedHistory.addEventListener("click", function() {
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
       currentCategory = 'like-history';
 
       document.getElementById('postsContainer').innerHTML = '';
-      loadPosts(`/api/post-like-history/${username}/?page=${currentPage}`)
+      loadPosts(`/user/post-like-history/${username}/?page=${currentPage}`)
     });
 
     savedHistory.addEventListener("click", function() {
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
       currentCategory = 'save-history';
 
       document.getElementById('postsContainer').innerHTML = '';
-      loadPosts(`/api/post-save-history/${username}/?page=${currentPage}`)
+      loadPosts(`/user/post-save-history/${username}/?page=${currentPage}`)
     });
 
     // Event delegation for posts
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const post = e.target.closest('.post-item');
 
         if(post){
-          fetch(`api/like/${post.dataset.postId}`, {method: 'POST'})
+          fetch(`user/like/${post.dataset.postId}`, {method: 'POST'})
             .then(response => {
               if(response.status === 401){
                 window.location.href = '/login';
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const post = e.target.closest('.post-item');
 
         if(post){
-          fetch(`api/save/${post.dataset.postId}`, {method: 'POST'})
+          fetch(`user/save/${post.dataset.postId}`, {method: 'POST'})
             .then(response => {
               if(response.status === 401){
                 window.location.href = '/login';
@@ -215,17 +215,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nearBottomOfPage()) {   
 
       if(currentCategory == "post-history"){
-        loadPosts(`/api/post-history/${username}/?page=${currentPage}`);
+        loadPosts(`/posts/post-history/${username}/?page=${currentPage}`);
       }else if(currentCategory == "comment-history"){
-        loadPosts(`/api/post-comment-history/${username}/?page=${currentPage}`);
+        loadPosts(`/comments/post-comment-history/${username}/?page=${currentPage}`);
       }else if(currentCategory == "like-history"){
-        loadPosts(`/api/post-like-history/${username}/?page=${currentPage}`);
+        loadPosts(`/user/post-like-history/${username}/?page=${currentPage}`);
       }else if (currentCategory == "save-history"){
-        loadPosts(`/api/post-save-history/${username}/?page=${currentPage}`);
+        loadPosts(`/user/post-save-history/${username}/?page=${currentPage}`);
       }
         
     }
 }, 100));
 
-    loadPosts(`/api/post-history/${username}/?page=${currentPage}`); // Load the initial posts
+    loadPosts(`/posts/post-history/${username}/?page=${currentPage}`); // Load the initial posts
 });

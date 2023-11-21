@@ -28,9 +28,9 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
     loadingIndicator.id = "loading-indicator";
     postsContainer.appendChild(loadingIndicator);
 
-    let url = `/api/posts?page=${currentPage}`;
+    let url = `/posts/fetch-posts?page=${currentPage}`;
     if (searchMode && searchQuery) {
-        url = `/api/search?query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
+        url = `/posts/api/search?query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
     }
 
     fetch(url)
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const post = e.target.closest('.post-item');
 
         if(post){
-          fetch(`api/like/${post.dataset.postId}`, {method: 'POST'})
+          fetch(`/user/api/like/${post.dataset.postId}`, {method: 'POST'})
             .then(response => {
               if(response.status === 401){
                 window.location.href = '/login';
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const post = e.target.closest('.post-item');
 
         if(post){
-          fetch(`api/save/${post.dataset.postId}`, {method: 'POST'})
+          fetch(`/user/api/save/${post.dataset.postId}`, {method: 'POST'})
             .then(response => {
               if(response.status === 401){
                 window.location.href = '/login';
