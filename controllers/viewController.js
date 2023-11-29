@@ -9,19 +9,20 @@ exports.renderRegister = async (req, res) => {
 };
 
 exports.renderHomepage = async (req, res) => {
-    console.log(res.authenticated)
     if(res.authenticated){
         res.render('index_a.ejs');
+    }else{
+        res.render('index.ejs');
     }
 
-    res.render('index.ejs');
 };
 
 exports.renderPostSubmit = async (req, res) => {
     if(res.authenticated){
         res.render('post-submit.ejs');
+    }else{
+        res.redirect("/login");
     }
-    res.redirect("/login");
 };
 
 exports.renderReset = async (req, res) => {

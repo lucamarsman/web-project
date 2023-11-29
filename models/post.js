@@ -16,9 +16,9 @@ class Post {
             const postId = result.insertId
 
             res.redirect(`/post/${postId}`);
+        }else{
+            res.redirect('/login');
         }
-
-        res.redirect('/login');
         
     }
 
