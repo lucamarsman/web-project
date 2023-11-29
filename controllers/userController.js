@@ -77,6 +77,15 @@ exports.resetPassword= async (req, res) => {
     }
 };
 
+exports.getPasswordReset= async (req, res) => {
+    try {
+        res.render('reset-link.ejs')
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
+    }
+};
+
 exports.getResetLink= async (req, res) => {
     try {
         User.getResetLink(req, res);

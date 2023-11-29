@@ -21,6 +21,7 @@ router.post('/register', validateToken, userController.register);
 router.post("/login", userController.login);
 router.get('/logout', userController.logout);
 router.post('/reset', userController.getResetLink);
+router.get('/password-reset', userController.getPasswordReset)
 router.post('/reset/:reset_link', userController.resetPassword);
 
 // User profile management and fetch routes

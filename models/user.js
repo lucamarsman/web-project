@@ -145,6 +145,7 @@ class User {
                 httpOnly: true
             });
             
+            //const accessToken = await getOAuthAccessToken();
             //Nodemailer implementation for password reset
             let transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -154,10 +155,11 @@ class User {
                     clientId: process.env.googleapiclient,
                     clientSecret: process.env.googleapisecret,
                     refreshToken: process.env.oauthrefreshtoken,
+                    //accessToken: accessToken
                 }
             });
 
-            let resetLink = `localhost:3000/password-reset?token=${reset_link}`;
+            let resetLink = `localhost:3000/user/password-reset?token=${reset_link}`;
 
             let mailOptions = {
                 from: process.env.nodemaileruser,
