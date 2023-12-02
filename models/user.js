@@ -120,7 +120,6 @@ class User {
             return res.status(400).send("Reset window expired, please try again");
         }
         const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link;
-        console.log(reToken_payload);
         
         if (newp == newp2) {
             const newHash = await bcrypt.hash(newp, 10);
@@ -130,6 +129,8 @@ class User {
             await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]);
             res.redirect('/login');
         }
+
+        res.clearCookie("reset-token");
     }
 
     static async getResetLink(req, res) {
@@ -178,7 +179,8 @@ class User {
 
 
 
-            console.log('A reset link has been sent to the email associated with this account');
+            res.status(200).send('A reset link has been sent to the email associated with this account');
+
         }
 
 
