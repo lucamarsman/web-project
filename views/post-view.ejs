@@ -20,7 +20,7 @@
     <div id="post-data">
     <h1 id="title"><%= title %></h1>
     <p id="content"><%= body %></p>
-    <p id="timestamp"><%= timestamp %></p>
+    <div id ="direct-reply"><p id="timestamp"><%= timestamp %></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
     </div>
 
     <div id = "new-comment">
@@ -39,6 +39,19 @@
 <script src="/public/loadComment.js"></script>
 <script>
   $('#comment-form').attr('action', '/comments/post/' + postId);
+
+  let replyBtnMain = document.getElementById("post-reply");
+  let replyForm = document.getElementById("comment-form");
+  replyBtnMain.addEventListener("click", function(){
+    if (replyForm.style.display === "none" || replyForm.style.display === "") {
+        replyForm.style.display = "block";
+    } else {
+        replyForm.style.display = "none";
+    }
+
+    
+  })
+
 </script>
 
 </body>
