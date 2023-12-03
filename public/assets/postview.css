@@ -54,9 +54,9 @@ body {
     margin-top: 10px;
 }
 
-/* New Comment Form Styling */
 #new-comment form {
     margin-top: 20px;
+    display: none;
 }
 
 #newcomment {
@@ -96,9 +96,77 @@ body {
     margin-bottom: 10px;
 }
 
+/* Indentation for threaded comments */
+.reply-level-0 { margin-left: 5px; }
+.reply-level-1 { margin-left: 10px; }
+.reply-level-2 { margin-left: 15px; }
+.reply-level-3 { margin-left: 20px; }
+.reply-level-4 { margin-left: 25px; }
+.reply-level-5 { margin-left: 30px; }
+
+
+.post-item > form {
+    display: none;
+}
+
+#comment-reply p {
+    display: inline; 
+}
+
+#comment-reply img {
+    float:right;
+}
+
+.reply-button {
+    cursor: pointer;
+    display: inline-block; 
+    margin-left: 10px;
+    vertical-align: top; 
+    width: 25px;  
+    height: 25px;
+}
+
+.replies-container {
+    position: relative;
+    margin-left: 20px; 
+}
+
+.replies-container::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px; 
+    background-color: #ccc; 
+}
+
+.replies-container {
+    position: relative;
+    margin-left: 20px; 
+    margin-top: 30px; 
+}
+
+#post-reply{
+    height:30px;
+    width:30px;
+}
+
+#direct-reply p {
+    display: inline;
+}
+
+#direct-reply img {
+    float:right;
+}
+
+#comment-form{
+    display:none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    #login-pop {
+    #login-pop, #commentsContainer {
         width: 95%;
         margin: 10px auto;
     }
