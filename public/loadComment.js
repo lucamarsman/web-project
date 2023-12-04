@@ -2,6 +2,11 @@ let currentPage = 1;
 let isLoading = false;
 let morePostsAvailable = true;
 
+/*
+Improves performance by limiting the rate at which scroll function (fn) is executed.
+It waits for a specified delay (in milliseconds) before executing the scroll function.
+If the scroll function is triggered again before the delay is over, the timer is reset.
+*/
 function debounce(fn, delay) {
     let timer;
     return function() {
@@ -12,10 +17,23 @@ function debounce(fn, delay) {
     };
 }
 
+/*
+Determines if the user has scrolled near the bottom of the page.
+Checks if the sum of the current scroll position (window.scrollY) and the viewport height (window.innerHeight)
+is close to the total height of the document, indicating that the bottom is near.
+*/
 function nearBottomOfPage() {
     return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 }
 
+/*
+Loads comments asynchronously from the server for a specific post.
+Checks if comments are currently being loaded or if all comments have been loaded.
+Shows a loading indicator while fetching comments.
+Fetches comments using the fetch API from the /comments/:postId endpoint.
+Adds each fetched comment to the DOM using appendComment.
+Handles pagination through currentPage.
+*/
 const postId = window.location.pathname.split('/')[2];
 function loadComments(postId) {
     if (isLoading || !morePostsAvailable) return;
@@ -52,6 +70,13 @@ function loadComments(postId) {
         });
 }
 
+/*
+Dynamically creates and appends comment elements to the DOM.
+Builds the structure of a comment including content, timestamp, and reply button.
+Handles nested replies by recursively calling itself and adjusting the depth.
+Adds a collapse button for comment threads with replies.
+Manages visibility of replies and their containers.
+*/
 function appendComment(comment, depth) {
     const commentElement = document.createElement("div");
     commentElement.classList.add("post-item", `reply-level-${depth}`);
@@ -194,6 +219,10 @@ function appendComment(comment, depth) {
     return container; // Return the container for recursive nesting
 }
 
+/*
+Loads initial comments and their replies.
+Adds scroll event listener to document for scroll load functionality.
+*/
 document.addEventListener('DOMContentLoaded', function() {
     loadComments(postId);
 
