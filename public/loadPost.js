@@ -150,9 +150,15 @@ document.addEventListener('DOMContentLoaded', function() {
               else if(response.ok){
                 console.log("Post liked");
                 e.target.src = "/public/assets/images/like2.svg";
+                let likeCountElement = e.target.nextElementSibling;
+                let currentCount = parseInt(likeCountElement.textContent);
+                likeCountElement.textContent = (currentCount + 1).toString();
               }else{
                 console.log("Post unliked");
                 e.target.src = "/public/assets/images/like.svg";
+                let likeCountElement = e.target.nextElementSibling;
+                let currentCount = parseInt(likeCountElement.textContent);
+                likeCountElement.textContent = (currentCount - 1).toString();
               }
             })
 
