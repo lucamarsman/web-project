@@ -92,7 +92,7 @@ function appendComment(comment, depth) {
         const replyText = textarea.value;
         const postId = comment.post_id;
 
-        // Send reply data to server
+        // comment route for returning comment replies
         const postUrl = '/comments/reply'; 
 
         const postData = {
@@ -101,7 +101,7 @@ function appendComment(comment, depth) {
             postId: postId
         };
 
-        // Send the data to the server
+        // Fetch comment replies
         fetch(postUrl, {
             method: 'POST',
             headers: {
@@ -167,6 +167,26 @@ function appendComment(comment, depth) {
             repliesContainer.appendChild(childCommentElement); // Append child comment
         });
         if (repliesContainer.hasChildNodes()) {
+            const collapseBtn = document.createElement("img");
+            collapseBtn.id = "collapseButton";
+            collapseBtn.setAttribute("src" , "/public/assets/images/minus.svg");
+
+            collapseBtn.addEventListener("click", function(){
+            // Locate the replies container that is a sibling of the collapse button
+            let repliesContainer = collapseBtn.nextSibling;
+
+            if (repliesContainer && repliesContainer.classList.contains("replies-container")) {
+                // Toggle visibility of the replies container
+                repliesContainer.style.display = repliesContainer.style.display === "none" ? "block" : "none";
+                
+                // Change the icon of the collapse button to indicate state
+                collapseBtn.setAttribute("src", repliesContainer.style.display === "none" ? "/public/assets/images/plus.svg" : "/public/assets/images/minus.svg");
+            }
+
+                          
+            })
+
+            container.appendChild(collapseBtn);
             container.appendChild(repliesContainer); // Append the replies container
         }
     }
