@@ -59,8 +59,13 @@ body {
     box-sizing: border-box; /* Makes sure padding doesn't affect overall width */
 }
 
+#post-body.posty {
+    overflow: hidden; /* Hides the scrollbar */
+    resize: none; /* Optional: Disables manual resizing */
+}
+
 #post-body {
-    height: 300px; /* Adjust height for the textarea */
+    height: 100%; /* Adjust height for the textarea */
     resize: vertical; /* Allows only vertical resizing */
 }
 

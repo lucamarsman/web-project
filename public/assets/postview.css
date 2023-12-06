@@ -26,6 +26,14 @@ body {
     font-size: 16px;
 }
 
+.poster {
+    color:blue;
+}
+
+.poster :hover{
+    cursor:pointer;
+}
+
 #main-nav button:hover {
     background-color: #0056b3;
 }
@@ -97,12 +105,12 @@ body {
 }
 
 /* Indentation for threaded comments */
-.reply-level-0 { margin-left: 5px; }
-.reply-level-1 { margin-left: 10px; }
-.reply-level-2 { margin-left: 15px; }
-.reply-level-3 { margin-left: 20px; }
-.reply-level-4 { margin-left: 25px; }
-.reply-level-5 { margin-left: 30px; }
+.reply-level-0 { margin-left: 0px; }
+.reply-level-1 { margin-left: 20px; }
+.reply-level-2 { margin-left: 40px; }
+.reply-level-3 { margin-left: 60px; }
+.reply-level-4 { margin-left: 80px; }
+.reply-level-5 { margin-left: 100px; }
 
 
 .post-item > form {
@@ -176,6 +184,31 @@ body {
 
 .comment-container{
     padding-bottom: 25px;
+}
+
+.poster-info > img{
+    height:60px;
+    width:60px;
+    border-radius: 50%;  /* This makes the image circular */
+    object-fit: cover;
+}
+
+.poster-info > p {
+    display:inline;
+}
+
+.poster:hover{
+    cursor:pointer;
+}
+
+.poster-info{
+    display:flex;
+    gap:30px;
+}
+
+#collapseButton:hover{
+    cursor:pointer;
+
 }
 
 /* Responsive Design */
