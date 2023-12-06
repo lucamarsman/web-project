@@ -81,7 +81,38 @@ function appendComment(comment, depth) {
     const commentElement = document.createElement("div");
     commentElement.classList.add("post-item", `reply-level-${depth}`);
     commentElement.setAttribute("data-post-id", comment.comment_id);
-    
+
+    const posterInfo = document.createElement("div");
+    posterInfo.classList.add("poster-info");
+
+    fetch(`/user/${comment.user_id}`)
+        .then(response => response.json())
+        .then(user => {
+            console.log(user)
+            const username = document.createElement("p");
+            username.textContent = user.username;
+            username.classList.add("poster");
+            username.addEventListener("click", function () {
+                window.location.href = `/view/${user.username}/profile`;
+            });
+
+
+            const userImage = document.createElement("img");
+            if(user.image_path == ""){
+                userImage.setAttribute("src", "public/assets/images/default-profile.png");
+            }else{
+                userImage.setAttribute("src", "/" + user.image_path);
+            }
+
+            posterInfo.appendChild(userImage);
+            posterInfo.appendChild(username);
+        })
+        .catch(error => { 
+            console.error('Failed to fetch user:', error);
+        });
+
+    commentElement.appendChild(posterInfo);
+
     const commentContent = document.createElement("p");
     commentContent.textContent = comment.content;
     commentElement.appendChild(commentContent);
@@ -155,6 +186,15 @@ function appendComment(comment, depth) {
 
     replyBtn.addEventListener("click", function() {
         commentForm.style.display = commentForm.style.display === "none" ? "block" : "none";
+        if (commentForm.style.display === "block") {
+            // Find the username <p> tag
+            const usernameEl = commentElement.querySelector('.poster');
+            if (usernameEl) {
+                // Prepend '@username ' to the textarea
+                textarea.value = `@${usernameEl.textContent.trim()} `;
+                textarea.focus(); // Focus the textarea to start typing immediately
+            }
+        }
     });
 
     const commentReply = document.createElement("div");
