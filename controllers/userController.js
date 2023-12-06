@@ -140,3 +140,12 @@ exports.fetchLikeHistory= async (req, res) => {
     }
 };
 
+exports.fetchUserById= async (req, res) => {
+    try {
+        User.fetchUserById(req, res);
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
+    }
+}
+

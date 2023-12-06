@@ -342,6 +342,22 @@ class User {
         }
     }
 
+    static async fetchUserById(req, res){
+        try{
+            const userId = req.params.userId;
+            const userName = await queryDb('SELECT username FROM Users WHERE user_id = ?', [userId]);
+            const userImage = await queryDb('SELECT image_path FROM ProfilePictures WHERE user_id = ?', [userId]);
+            const userDetails = {
+                username: userName[0].username,
+                image_path: userImage[0].image_path
+            }
+
+            res.json(userDetails);
+        }catch(error){
+            console.log(error)
+        }
+    }
+
 
 }
 

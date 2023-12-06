@@ -29,6 +29,7 @@ router.get('/profile/profile-image', userController.getUserImage);
 router.post('/profile/save', userController.saveProfile);
 router.get('/profile/load-bio', userController.getProfileBio);
 router.post('/profile/upload-profile-image', upload.single('profilePic'), userController.uploadImage);
+router.get('/:userId', userController.fetchUserById);
 
 // Like routes
 router.post('/api/like/:postId', validateToken, userController.likePost); // Like a Post
