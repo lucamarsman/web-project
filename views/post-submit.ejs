@@ -18,14 +18,23 @@
 <div id="login-pop">
   <div id="post-area">
     <form action="/posts/new-post" id = "form" method = "POST">
-      <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title'>
+      <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50">
     <br>
-      <textarea id = 'post-body' class = 'posty' rows = "20" cols = "60" placeholder="Body..." name='post_body'></textarea>
+      <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000"></textarea>
     <br>
       <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
   </form>
   </div>
 
+  <script>
+    const textarea = document.getElementById('post-body');
+
+    textarea.addEventListener('input', function () {
+        this.style.height = 'auto'; // Reset the height
+        this.style.height = (this.scrollHeight) + 'px'; // Set the height
+    });
+
+  </script>
 
 
 
