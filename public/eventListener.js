@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() { // Wait for the DOM to load
     let posts = document.querySelectorAll(".post"); // Select all the post elements
 
     posts.forEach(function(post) { // Attach an event listener to each post

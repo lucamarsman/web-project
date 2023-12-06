@@ -27,9 +27,9 @@
   </div>
 
   <script>
-    const textarea = document.getElementById('post-body');
+    const textarea = document.getElementById('post-body'); // The textarea element
 
-    textarea.addEventListener('input', function () {
+    textarea.addEventListener('input', function () { // Input event listener that resizes the etxtarea vertically based on the content
         this.style.height = 'auto'; // Reset the height
         this.style.height = (this.scrollHeight) + 'px'; // Set the height
     });

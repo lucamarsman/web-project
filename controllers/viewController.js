@@ -1,14 +1,14 @@
-const View = require('../models/view.js');
+const View = require('../models/view.js'); // import view model
 
-exports.renderLogin = async (req, res) => {
+exports.renderLogin = async (req, res) => { // render login page
     res.render('login.ejs');
 };
 
-exports.renderRegister = async (req, res) => {
+exports.renderRegister = async (req, res) => { // render register page
     res.render('register.ejs');
 };
 
-exports.renderHomepage = async (req, res) => {
+exports.renderHomepage = async (req, res) => { // render homepage
     if(res.authenticated){
         res.render('index_a.ejs');
     }else{
@@ -17,7 +17,7 @@ exports.renderHomepage = async (req, res) => {
 
 };
 
-exports.renderPostSubmit = async (req, res) => {
+exports.renderPostSubmit = async (req, res) => { // render post submit page
     if(res.authenticated){
         res.render('post-submit.ejs');
     }else{
@@ -25,15 +25,15 @@ exports.renderPostSubmit = async (req, res) => {
     }
 };
 
-exports.renderReset = async (req, res) => {
+exports.renderReset = async (req, res) => { // render reset page
     res.render('reset.ejs');
 };
 
-exports.renderResetLink= async (req, res) => {
+exports.renderResetLink= async (req, res) => { // render reset link page
     res.render('reset-link.ejs');
 };
 
-exports.viewProfile= async (req, res) => {
+exports.viewProfile= async (req, res) => { // view profile
     try {
         View.viewProfile(req, res);
     } catch (error) {
@@ -42,7 +42,7 @@ exports.viewProfile= async (req, res) => {
     }
 };
 
-exports.viewUser= async (req, res) => {
+exports.viewUser= async (req, res) => { // view user
     try {
         View.viewUser(req, res);
     } catch (error) {
@@ -51,7 +51,7 @@ exports.viewUser= async (req, res) => {
     }
 };
 
-exports.viewPost= async (req, res) => {
+exports.viewPost= async (req, res) => { // view post
     try {
         View.viewPost(req, res);
     } catch (error) {
@@ -60,7 +60,7 @@ exports.viewPost= async (req, res) => {
     }
 };
 
-exports.getUserImage= async (req, res) => {
+exports.getUserImage= async (req, res) => { // get user image
     try {
         View.getUserImage(req, res);
     } catch (error) {

@@ -1,56 +1,56 @@
-const queryDb = require('../utils/queryDb.js');
-const bcrypt = require('bcrypt');
-const jwt_decode = require("jwt-decode");
-const { generateAccessToken, validateToken, generateRefreshToken, generateResetToken, validateUser} = require('../Auth.js')
-const crypto = require('crypto');
-const nodemailer = require('nodemailer')
-const { getOAuthAccessToken} = require('../OAuth.js')
+const queryDb = require('../utils/queryDb.js'); // Import queryDb function from utils/queryDb.js
+const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
+const jwt_decode = require("jwt-decode"); // Import jwt-decode for decoding JWTs
+const { generateAccessToken, validateToken, generateRefreshToken, generateResetToken, validateUser} = require('../Auth.js') // Import Auth.js functions
+const crypto = require('crypto'); // Import crypto for generating random bytes
+const nodemailer = require('nodemailer') // Import nodemailer for sending emails
+const { getOAuthAccessToken} = require('../OAuth.js') // Import OAuth.js functions for use with nodemailer
 
-async function savePost(postId, userId) {
-    try {
-        const rows = await queryDb('SELECT * FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]); 
-        if(rows.length > 0){
-            console.log("Post already saved");
-            return { alreadySaved: true };
-        } else {
-            await queryDb('INSERT INTO saves (user_id, post_id) VALUES (?,?)', [userId, postId]);
-            return { alreadySaved: false };
+async function savePost(postId, userId) { // Save a post
+    try { // Try to save the post
+        const rows = await queryDb('SELECT * FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]); // Check if the post has already been saved
+        if(rows.length > 0){ // If the post has already been saved
+            console.log("Post already saved"); // Log that the post has already been saved
+            return { alreadySaved: true }; // Return that the post has already been saved
+        } else { // If the post has not already been saved
+            await queryDb('INSERT INTO saves (user_id, post_id) VALUES (?,?)', [userId, postId]); // Save the post
+            return { alreadySaved: false }; // Return that the post has not already been saved
         }
-    } catch (error) {
+    } catch (error) { // Catch any errors
         throw error; 
     }
 }
 
-async function likePost(postId, userId) {
-    try {
-        const rows = await queryDb('SELECT * FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]); 
-        if(rows.length > 0){
-            console.log("Post already liked");
-            return { alreadyLiked: true };
-        } else {
-            await queryDb('INSERT INTO likes (user_id, post_id) VALUES (?,?)', [userId, postId]);
-            return { alreadyLiked: false };
+async function likePost(postId, userId) { // Like a post
+    try { // Try to like the post
+        const rows = await queryDb('SELECT * FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]); // Check if the post has already been liked
+        if(rows.length > 0){ // If the post has already been liked
+            console.log("Post already liked"); // Log that the post has already been liked
+            return { alreadyLiked: true }; // Return that the post has already been liked
+        } else { // If the post has not already been liked
+            await queryDb('INSERT INTO likes (user_id, post_id) VALUES (?,?)', [userId, postId]); // Like the post
+            return { alreadyLiked: false }; // Return that the post has not already been liked
         }
-    } catch (error) {
-        throw error; 
+    } catch (error) { // Catch any errors
+        throw error;
     }
 }
 
-class User {
-    static async findByEmailOrUsername(email, username) {
-        const query = 'SELECT * FROM Users WHERE email = ? OR username = ?';
-        const results = await queryDb(query, [email, username]);
-        return results.length > 0;
+class User { // User class
+    static async findByEmailOrUsername(email, username) { // Find user by email or username
+        const query = 'SELECT * FROM Users WHERE email = ? OR username = ?'; // Query to find user by email or username
+        const results = await queryDb(query, [email, username]); // Execute the query
+        return results.length > 0; // Return whether or not the user exists
     }
 
-    static async create(username, password, email) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const query = 'INSERT INTO Users (username, password, email) VALUES (?, ?, ?)';
-        await queryDb(query, [username, hashedPassword, email]);
+    static async create(username, password, email) { // Create user
+        const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+        const query = 'INSERT INTO Users (username, password, email) VALUES (?, ?, ?)'; // Insert the user into the database
+        await queryDb(query, [username, hashedPassword, email]); // Execute the query
     }
 
-    static async logout(req, res) {
-        // Clear the cookies
+    static async logout(req, res) { // Logout user
+        // Clear the auth cookies
         res.clearCookie("access-token");
         res.clearCookie("refresh-token");
     
@@ -58,97 +58,93 @@ class User {
         res.redirect('/');
     }
 
-    static async getUserImage(req, res) {
-        let decodedToken = jwt_decode(req.cookies['refresh-token']);
-        const userId = decodedToken.user.userid; 
+    static async getUserImage(req, res) { // Get user profile image
+        let decodedToken = jwt_decode(req.cookies['refresh-token']); // Decode JWT
+        const userId = decodedToken.user.userid;  // Get user id from decoded token
 
-        const imageURL = await queryDb("SELECT image_path FROM ProfilePictures WHERE user_id = ?", [userId]);
-        res.json(imageURL)
+        const imageURL = await queryDb("SELECT image_path FROM ProfilePictures WHERE user_id = ?", [userId]); // Get user profile image from database
+        res.json(imageURL) // Send user profile image to client
     }
 
-    static async saveProfile(req, res) {
-        let decodedToken = jwt_decode(req.cookies['refresh-token'])
-        const uid = decodedToken.user.userid; 
+    static async saveProfile(req, res) { // Save user profile bio
+        let decodedToken = jwt_decode(req.cookies['refresh-token']) // Decode JWT
+        const uid = decodedToken.user.userid; // Get user id from decoded token
         
         await queryDb("USE forumDB")
-        await queryDb("UPDATE Users SET bio = ? WHERE user_id = ?", [req.body.bio, uid])
+        await queryDb("UPDATE Users SET bio = ? WHERE user_id = ?", [req.body.bio, uid]) // Update user bio in database
     }
 
-    static async getProfileBio(req, res) {
-        let decodedToken = jwt_decode(req.cookies['refresh-token'])
-        const uid = decodedToken.user.userid; 
+    static async getProfileBio(req, res) { // Get user profile bio
+        let decodedToken = jwt_decode(req.cookies['refresh-token']) // Decode JWT
+        const uid = decodedToken.user.userid; // Get user id from decoded token
 
-        await queryDb("USE forumDB")
-        const bio = await queryDb("SELECT bio FROM Users WHERE user_id = ?", [uid])
-        res.json(bio)
+        await queryDb("USE forumDB") 
+        const bio = await queryDb("SELECT bio FROM Users WHERE user_id = ?", [uid]) // Get user bio from database
+        res.json(bio) // Send user bio to client
     }
 
-    static async uploadImage(req, res) {
-        try {
-            if (req.file) {
-              let decodedToken = jwt_decode(req.cookies['refresh-token']);
-              const userId = decodedToken.user.userid;
+    static async uploadImage(req, res) { // Upload user profile image
+        try { // Try to upload image
+            if (req.file) { // If there is a file
+              let decodedToken = jwt_decode(req.cookies['refresh-token']); // Decode JWT
+              const userId = decodedToken.user.userid; // Get user id from decoded token
               await queryDb('USE forumDB');
-              const picQuery = await queryDb('SELECT * FROM ProfilePictures WHERE user_id = ?', [userId]);
-              console.log(picQuery.length)
-              if (picQuery.length === 0) {
-                await queryDb("INSERT INTO ProfilePictures (image_path, user_id) VALUES (?, ?)", [req.file.path, userId]);
+              const picQuery = await queryDb('SELECT * FROM ProfilePictures WHERE user_id = ?', [userId]); // Check if the user already has a profile picture
+              if (picQuery.length === 0) { // If the user does not have a profile picture
+                await queryDb("INSERT INTO ProfilePictures (image_path, user_id) VALUES (?, ?)", [req.file.path, userId]); // Insert the profile picture into the database
               } else {
-                await queryDb("UPDATE ProfilePictures SET image_path = ? WHERE user_id = ?", [req.file.path, userId]);
+                await queryDb("UPDATE ProfilePictures SET image_path = ? WHERE user_id = ?", [req.file.path, userId]); // Update the profile picture in the database
               }
           
-              const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+              const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`; // Set the image url
               
-              res.json({ success: true, filePath: imageUrl });
-            } else {
-              res.json({ success: false, message: "No file uploaded." });
+              res.json({ success: true, filePath: imageUrl }); // Send 200 back to client
+            } else { // If there is no file
+              res.json({ success: false, message: "No file uploaded." }); // Send 400 back to client
             }
-          } catch (error) {
-            console.error(error);
-            res.status(500).json({ success: false, message: "Internal server error." });
+          } catch (error) { // Catch any errors
+            console.error(error); // Log the error
+            res.status(500).json({ success: false, message: "Internal server error." }); // Send 500 back to client
           }
     }
 
-    static async resetPassword(req, res) {
-        const resetToken = req.cookies['reset-token'];
-        console.log(req);
-        let newp = req.body.newpassword;
-        console.log(newp);
-        let newp2 = req.body.newpassword2;
+    static async resetPassword(req, res) { // Reset user password
+        const resetToken = req.cookies['reset-token']; // Get reset token from cookie
+        let newp = req.body.newpassword; // Get new password from request body
+        let newp2 = req.body.newpassword2; // Get new password confirmation from request body
 
-        if (!resetToken) {
-            return res.status(400).send("Reset window expired, please try again");
+        if (!resetToken) { // If there is no reset token in cookies
+            return res.status(400).send("Reset window expired, please try again"); // Send 400 back to client
         }
-        const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link;
+
+        const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link; // Decode reset token
         
-        if (newp == newp2) {
-            const newHash = await bcrypt.hash(newp, 10);
-            console.log(newHash);
+        if (newp == newp2) { // If the new passwords match
+            const newHash = await bcrypt.hash(newp, 10); // Hash the new password
             await queryDb('USE forumDB');
-            await queryDb('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload]);
-            await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]);
-            res.redirect('/login');
+            await queryDb('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload]); // Update the password in the database
+            await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]); // Set the reset link to null in the database
+            res.redirect('/login'); // Redirect to login page
         }
 
-        res.clearCookie("reset-token");
+        res.clearCookie("reset-token"); // Clear the reset token cookie after successful password reset
     }
 
-    static async getResetLink(req, res) {
-        let reset_link = crypto.randomBytes(20).toString('hex');
-        const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.email]);
-        if (rows.length > 0) {
-            await queryDb('UPDATE Users SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]);
-            const userId = (await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.email]))[0].user_id;
-            const reset_token = generateResetToken(userId, reset_link);
-            let reset_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
-            res.cookie('reset-token', reset_token, {
+    static async getResetLink(req, res) { // Get password reset link
+        let reset_link = crypto.randomBytes(20).toString('hex'); // Generate random bytes for reset link
+        const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.email]); // Check if the email is registered
+        if (rows.length > 0) { // If the email is registered
+            await queryDb('UPDATE Users SET reset_link = ? WHERE email = ?', [reset_link, req.body.email]); // Set the reset link in the database
+            const userId = (await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.email]))[0].user_id; // Get the user id from the database
+            const reset_token = generateResetToken(userId, reset_link); // Generate reset token using user id and reset link
+            let reset_expiry = new Date(new Date().getTime() + 5 * 60 * 1000); // Set reset token expiry to 5 minutes
+            res.cookie('reset-token', reset_token, { // Set reset token cookie
                 expires: reset_expiry,
                 httpOnly: true
             });
             
-            //const accessToken = await getOAuthAccessToken();
             //Nodemailer implementation for password reset
-            let transporter = nodemailer.createTransport({
+            let transporter = nodemailer.createTransport({ // Create nodemailer transporter
                 service: 'gmail',
                 auth: {
                     type: 'OAuth2',
@@ -156,20 +152,19 @@ class User {
                     clientId: process.env.googleapiclient,
                     clientSecret: process.env.googleapisecret,
                     refreshToken: process.env.oauthrefreshtoken,
-                    //accessToken: accessToken
                 }
             });
 
-            let resetLink = `localhost:3000/user/password-reset?token=${reset_link}`;
+            let resetLink = `localhost:3000/user/password-reset?token=${reset_link}`; // Set reset link
 
-            let mailOptions = {
+            let mailOptions = { // Set mail options
                 from: process.env.nodemaileruser,
                 to: req.body.email,
                 subject: 'Password Reset',
                 text: `Here is your password reset link: ${resetLink}`
             };
             
-            transporter.sendMail(mailOptions, function(error, info){
+            transporter.sendMail(mailOptions, function(error, info){ // Send email with reset link
                 if (error) {
                     console.log(error);
                 } else {
@@ -179,7 +174,7 @@ class User {
 
 
 
-            res.status(200).send('A reset link has been sent to the email associated with this account');
+            res.status(200).send('A reset link has been sent to the email associated with this account'); // Send 200 back to client
 
         }
 
@@ -188,104 +183,107 @@ class User {
 
     }
 
-    static async login(req, res) {
+    static async login(req, res) { // Login user
         await queryDb('USE forumDB');
-        const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.username]);
-        if (rows.length > 0) {
-            const result = await queryDb('SELECT password FROM Users WHERE email = ?', [req.body.username]);
-            const passwordResult = await bcrypt.compare(req.body.password, result[0].password);
-            const userIdResult = await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.username]);
-            const uid = userIdResult[0].user_id;
-            if (passwordResult) {
+        const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.username]); // Check if the email is registered
+
+        if (rows.length > 0) { // If the email is registered
+            const result = await queryDb('SELECT password FROM Users WHERE email = ?', [req.body.username]); // Get the password from the database
+            const passwordResult = await bcrypt.compare(req.body.password, result[0].password); // Compare the password from the database with the password from the request body
+            const userIdResult = await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.username]); // Get the user id from the database
+            const uid = userIdResult[0].user_id; // Set the user id
+
+            if (passwordResult) { // If the password is correct
                 console.log("Password matches!");
-                const payload_access = {
+                const payload_access = { // Create payload for access token
                     user: req.body.username,
                     role: 'accesstoken'
                 };
-                const payload_refresh = {
+                const payload_refresh = { // Create payload for refresh token
                     userid: uid,
                     role: 'refreshtoken'
                 };
-                const accessToken = generateAccessToken(payload_access);
-                const refreshToken = generateRefreshToken(payload_refresh);
-                let refresh_expiry = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
-                res.cookie("refresh-token", refreshToken, {
+                const accessToken = generateAccessToken(payload_access); // Generate access token using payload
+                const refreshToken = generateRefreshToken(payload_refresh); // Generate refresh token using payload
+                let refresh_expiry = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000); // Set refresh token expiry to 7 days
+                res.cookie("refresh-token", refreshToken, { // Set refresh token cookie
                     expires: refresh_expiry,
                     httpOnly: true
                 });
-                let access_expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
-                res.cookie("access-token", accessToken, {
+                let access_expiry = new Date(new Date().getTime() + 5 * 60 * 1000); // Set access token expiry to 5 minutes
+                res.cookie("access-token", accessToken, { // Set access token cookie
                     expires: access_expiry,
                     httpOnly: true
                 });
-                res.authenticated = true;
-                res.redirect('/');
-            } else {
-                res.status(401).send("Incorrect password.");
+                res.authenticated = true; // Set authenticated to true
+                res.redirect('/'); // Redirect to home page
+            } else { // If the password is incorrect
+                res.status(401).send("Incorrect password."); // Send 401 back to client
             }
-        } else {
+        } else { // If the email is not registered
             res.status(404).send("Email not registered.");
         }
     }
 
-    static async likePost(req, res){
-        if(res.authenticated){
-            const postId = req.params.postId;
-            let decodedToken = jwt_decode(req.cookies['refresh-token']);
-            const userId = decodedToken.user.userid; 
+    static async likePost(req, res){ // Like a post
+        if(res.authenticated){ // If user is logged in
+            const postId = req.params.postId; // Get post id from request params
+            let decodedToken = jwt_decode(req.cookies['refresh-token']); // Decode JWT
+            const userId = decodedToken.user.userid; // Get user id from decoded token
             
-            try {
-                const likeResult = await likePost(postId, userId);
-                if (likeResult.alreadyLiked) {
-                    res.status(300).send({ success: true, message: 'Post already liked' });
-                    await queryDb('DELETE FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]);
-                    await queryDb('UPDATE Posts SET likeCount = likeCount - 1 WHERE post_id = ?', [postId]);
-                } else {
+            try { // Try to like the post
+                const likeResult = await likePost(postId, userId); // Like the post
+                if (likeResult.alreadyLiked) { // If the post has already been liked
+                    res.status(300).send({ success: true, message: 'Post already liked' }); // Send 300 back to client
+                    await queryDb('DELETE FROM likes WHERE user_id = ? AND post_id = ?', [userId, postId]); // Delete the post from the likes table
+                    await queryDb('UPDATE Posts SET likeCount = likeCount - 1 WHERE post_id = ?', [postId]); // Decrement the like count
+                } else { // If the post has not already been liked
                     res.status(200).send({ success: true, message: 'Post liked successfully' });
                     await queryDb('UPDATE Posts SET likeCount = likeCount + 1 WHERE post_id = ?', [postId]);
                 }
-            } catch (error) {
+            } catch (error) { // Catch any errors
                 console.error('Error liking post:', error);
                 res.status(500).send({ success: false, message: 'Internal Server Error' });
             }
-        } else {
+        } else { // If user is not logged in
             res.sendStatus(401); // Send 401 back to client which redirects to login if not logged in and like button is clicked
         }
     }
 
-    static async savePost(req, res){
-        if(res.authenticated){
-            const postId = req.params.postId;
-            let decodedToken = jwt_decode(req.cookies['refresh-token']);
-            const userId = decodedToken.user.userid; 
+    static async savePost(req, res){ // Save a post
+        if(res.authenticated){ // If user is logged in
+            const postId = req.params.postId; // Get post id from request params
+            let decodedToken = jwt_decode(req.cookies['refresh-token']); // Decode JWT
+            const userId = decodedToken.user.userid; // Get user id from decoded token
             
-            try {
-                const saveResult = await savePost(postId, userId);
-                if (saveResult.alreadySaved) {
-                    res.status(300).send({ success: true, message: 'Post unsaved' });
-                    await queryDb('DELETE FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]);
-                } else {
-                    res.status(200).send({ success: true, message: 'Post saved successfully' });
+            try { // Try to save the post
+                const saveResult = await savePost(postId, userId); // Save the post
+                if (saveResult.alreadySaved) { // If the post has already been saved
+                    res.status(300).send({ success: true, message: 'Post unsaved' }); // Send 300 back to client
+                    await queryDb('DELETE FROM saves WHERE user_id = ? AND post_id = ?', [userId, postId]); // Delete the post from the saves table
+                } else { // If the post has not already been saved
+                    res.status(200).send({ success: true, message: 'Post saved successfully' }); // Send 200 back to client
                 }
-            } catch (error) {
+            } catch (error) { // Catch any errors
                 console.error('Error saving post:', error);
                 res.status(500).send({ success: false, message: 'Internal Server Error' });
             }
-        } else {
+        } else { // If user is not logged in
             res.sendStatus(401); // Send 401 back to client which redirects to login if not logged in and like button is clicked
         }
     }
 
-    static async fetchSaveHistory(req, res){
+    static async fetchSaveHistory(req, res){ // Fetch user's post save history
         try{
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
-            const username = req.params.username;
+            const page = req.query.page ? parseInt(req.query.page) : 1; // Get page number from request query
+            const offset = (page - 1) * limit; // Calculate offset
+            const username = req.params.username; // Get username from request params
     
             await queryDb('USE forumDB');
-            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
-    
+            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]); // Get user id from db
+            
+            // Get posts saved by user from db
             const posts = await queryDb(`
                 SELECT 
                     p.post_id,
@@ -304,21 +302,22 @@ class User {
             res.json(posts);
     
     
-        }catch(error){
+        }catch(error){ // Catch any errors
             console.log(error)
         }
     }
 
-    static async fetchLikeHistory(req, res){
+    static async fetchLikeHistory(req, res){ // Fetch user's post like history
         try{
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
-            const username = req.params.username;
+            const page = req.query.page ? parseInt(req.query.page) : 1; // Get page number from request query
+            const offset = (page - 1) * limit; // Calculate offset
+            const username = req.params.username; // Get username from request params
     
-            await queryDb('USE forumDB');
-            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
-    
+            await queryDb('USE forumDB'); 
+            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]); // Get user id from db
+            
+            // Get posts liked by user from db
             const posts = await queryDb(`
                 SELECT 
                     p.post_id,
@@ -337,23 +336,23 @@ class User {
             res.json(posts);
     
     
-        }catch(error){
+        }catch(error){ // Catch any errors
             console.log(error)
         }
     }
 
-    static async fetchUserById(req, res){
-        try{
-            const userId = req.params.userId;
-            const userName = await queryDb('SELECT username FROM Users WHERE user_id = ?', [userId]);
-            const userImage = await queryDb('SELECT image_path FROM ProfilePictures WHERE user_id = ?', [userId]);
-            const userDetails = {
-                username: userName[0].username,
-                image_path: userImage[0].image_path
+    static async fetchUserById(req, res){ // Fetch user by id
+        try{ // Try to fetch user by id
+            const userId = req.params.userId; // Get user id from request params
+            const userName = await queryDb('SELECT username FROM Users WHERE user_id = ?', [userId]); // Get username from database
+            const userImage = await queryDb('SELECT image_path FROM ProfilePictures WHERE user_id = ?', [userId]); // Get user profile image from database
+            const userDetails = { // Create user details object
+                username: userName[0].username, // Set username
+                image_path: userImage[0].image_path // Set user profile image
             }
 
-            res.json(userDetails);
-        }catch(error){
+            res.json(userDetails); // Send user details to client
+        }catch(error){ // Catch any errors
             console.log(error)
         }
     }

@@ -11,26 +11,26 @@ const { JsonWebTokenError } = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
 const multer = require('multer');
 
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(cookieParser())
+app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(express.json()) // for parsing application/json
+app.use(cookieParser()) // for parsing cookies
 
-const userRoutes = require('./routes/userRoutes');
-app.use('/user', userRoutes);
+const userRoutes = require('./routes/userRoutes'); // import user routes
+app.use('/user', userRoutes); // use route
 
-const viewRoutes = require('./routes/viewRoutes');
-app.use('/', viewRoutes);
+const viewRoutes = require('./routes/viewRoutes'); // import view routes
+app.use('/', viewRoutes); // use route
 
-const postRoutes = require('./routes/postRoutes');
-app.use('/posts', postRoutes);
+const postRoutes = require('./routes/postRoutes'); // import post routes
+app.use('/posts', postRoutes); // use route
 
-const commentRoutes = require('./routes/commentRoutes');
-app.use('/comments', commentRoutes);
+const commentRoutes = require('./routes/commentRoutes'); // import comment routes
+app.use('/comments', commentRoutes); // use route
 
-app.engine('html', require('ejs').renderFile);
-app.set('view-engine', 'html')
-app.use('/public', express.static('public'));
-app.use('/uploads', express.static('public/uploads'));
+app.engine('html', require('ejs').renderFile); 
+app.set('view-engine', 'html') // set view engine to ejs
+app.use('/public', express.static('public')); // set static folder
+app.use('/uploads', express.static('public/uploads')); // set static uploads folder
 
 
-app.listen(3000)
+app.listen(3000) // listen on port 3000

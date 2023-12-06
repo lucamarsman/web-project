@@ -1,6 +1,6 @@
-const Post = require('../models/post.js');
+const Post = require('../models/post.js'); // import post model
 
-exports.createPost = async (req, res) => {
+exports.createPost = async (req, res) => { // create post
     try {
         Post.createPost(req, res);
     } catch (error) {
@@ -9,7 +9,7 @@ exports.createPost = async (req, res) => {
     }
 };
 
-exports.fetchPost = async (req, res) => {
+exports.fetchPost = async (req, res) => { // fetch post
     try {
         Post.fetchPost(req, res);
     } catch (error) {
@@ -18,7 +18,7 @@ exports.fetchPost = async (req, res) => {
     }
 };
 
-exports.fetchPostHistory = async (req, res) => {
+exports.fetchPostHistory = async (req, res) => { // fetch post history
     try {
         Post.fetchPostHistory(req, res);
     } catch (error) {
@@ -27,7 +27,7 @@ exports.fetchPostHistory = async (req, res) => {
     }
 };
 
-exports.searchPost= async (req, res) => {
+exports.searchPost= async (req, res) => { // search post
     try {
         Post.searchPost(req, res);
     } catch (error) {

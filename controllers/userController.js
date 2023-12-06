@@ -1,8 +1,8 @@
-const User = require('../models/user.js');
+const User = require('../models/user.js'); // Import user model
 
-exports.register = async (req, res) => {
-    if(!res.authenticated){
-        try {
+exports.register = async (req, res) => { // Register user
+    if(!res.authenticated){ // Check if user is authenticated
+        try { // Try to register user
             const { name, password, email } = req.body;
             const userExists = await User.findByEmailOrUsername(email, name);
     
@@ -13,17 +13,17 @@ exports.register = async (req, res) => {
                 console.log("Username or email already taken.");
                 // Optionally, redirect back to the registration page or show an error message
             }
-        } catch (error) {
+        } catch (error) { // Catch any errors
             console.log("Something went wrong", error);
             // Handle the error appropriately
         }
-    }else{
+    }else{ // If user is unauthenticated, redirect to home page
         res.redirect('/');
     }
     
 };
 
-exports.logout= async (req, res) => {
+exports.logout= async (req, res) => { // Logout user
     try {
         User.logout(req, res);
     } catch (error) {
@@ -32,7 +32,7 @@ exports.logout= async (req, res) => {
     }
 };
 
-exports.getUserImage= async (req, res) => {
+exports.getUserImage= async (req, res) => { // Get user profile image
     try {
         User.getUserImage(req, res);
     } catch (error) {
@@ -41,7 +41,7 @@ exports.getUserImage= async (req, res) => {
     }
 };
 
-exports.saveProfile= async (req, res) => {
+exports.saveProfile= async (req, res) => { // Save user profile bio
     try {
         User.saveProfile(req, res);
     } catch (error) {
@@ -50,7 +50,7 @@ exports.saveProfile= async (req, res) => {
     }
 };
 
-exports.getProfileBio= async (req, res) => {
+exports.getProfileBio= async (req, res) => { // Get user profile bio
     try {
         User.getProfileBio(req, res);
     } catch (error) {
@@ -59,7 +59,7 @@ exports.getProfileBio= async (req, res) => {
     }
 };
 
-exports.uploadImage= async (req, res) => {
+exports.uploadImage= async (req, res) => { // Upload user profile image
     try {
         User.uploadImage(req, res);
     } catch (error) {
@@ -68,7 +68,7 @@ exports.uploadImage= async (req, res) => {
     }
 };
 
-exports.resetPassword= async (req, res) => {
+exports.resetPassword= async (req, res) => { // Reset user password
     try {
         User.resetPassword(req, res);
     } catch (error) {
@@ -77,7 +77,7 @@ exports.resetPassword= async (req, res) => {
     }
 };
 
-exports.getPasswordReset= async (req, res) => {
+exports.getPasswordReset= async (req, res) => { // Get password reset page
     try {
         res.render('reset-link.ejs')
     } catch (error) {
@@ -86,7 +86,7 @@ exports.getPasswordReset= async (req, res) => {
     }
 };
 
-exports.getResetLink= async (req, res) => {
+exports.getResetLink= async (req, res) => { // Get password reset link
     try {
         User.getResetLink(req, res);
     } catch (error) {
@@ -95,7 +95,7 @@ exports.getResetLink= async (req, res) => {
     }
 };
 
-exports.login= async (req, res) => {
+exports.login= async (req, res) => { // Login user
     try {
         User.login(req, res);
     } catch (error) {
@@ -104,7 +104,7 @@ exports.login= async (req, res) => {
     }
 };
 
-exports.likePost= async (req, res) => {
+exports.likePost= async (req, res) => { // Like a post
     try {
         User.likePost(req, res);
     } catch (error) {
@@ -113,7 +113,7 @@ exports.likePost= async (req, res) => {
     }
 };
 
-exports.savePost= async (req, res) => {
+exports.savePost= async (req, res) => { // Save a post
     try {
         User.savePost(req, res);
     } catch (error) {
@@ -122,7 +122,7 @@ exports.savePost= async (req, res) => {
     }
 };
 
-exports.fetchSaveHistory= async (req, res) => {
+exports.fetchSaveHistory= async (req, res) => { // Fetch user's post save history
     try {
         User.fetchSaveHistory(req, res);
     } catch (error) {
@@ -131,7 +131,7 @@ exports.fetchSaveHistory= async (req, res) => {
     }
 };
 
-exports.fetchLikeHistory= async (req, res) => {
+exports.fetchLikeHistory= async (req, res) => { // Fetch user's post like history
     try {
         User.fetchLikeHistory(req, res);
     } catch (error) {
@@ -140,7 +140,7 @@ exports.fetchLikeHistory= async (req, res) => {
     }
 };
 
-exports.fetchUserById= async (req, res) => {
+exports.fetchUserById= async (req, res) => { // Fetch user by id
     try {
         User.fetchUserById(req, res);
     } catch (error) {

@@ -1,38 +1,36 @@
-const queryDb = require('../utils/queryDb.js');
-const jwt_decode = require("jwt-decode");
+const queryDb = require('../utils/queryDb.js'); // import queryDb
+const jwt_decode = require("jwt-decode"); // import jwt_decode
 
-class Post {
-    static async createPost(req, res) {
-        if(res.authenticated){
-            const post_payload = {
-                "title": req.body.post_title,
-                "body": req.body.post_body
+class Post { // post model
+    static async createPost(req, res) { // create post
+        if(res.authenticated){ // if user is authenticated
+            const post_payload = { // create post payload
+                "title": req.body.post_title, // get post title from request body
+                "body": req.body.post_body // get post body from request body
             }
 
-            let decodedToken = jwt_decode(req.cookies['refresh-token'])
-            const uid = decodedToken.user.userid; 
-            await queryDb('USE forumDB');
-            const result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]);
-            const postId = result.insertId
+            let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
+            const uid = decodedToken.user.userid; // get user ID from decoded JWT token
+            const result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]); // insert post into database
+            const postId = result.insertId // get post ID of newly created post
 
-            res.redirect(`/post/${postId}`);
-        }else{
-            res.redirect('/login');
+            res.redirect(`/post/${postId}`); // redirect to newly created post page
+        }else{ // if user is not authenticated
+            res.redirect('/login'); // redirect to login page
         }
         
     }
 
-    static async fetchPost(req, res) {
-        if(res.authenticated){
-            try{
+    static async fetchPost(req, res) { // fetch post
+        if(res.authenticated){ // if user is authenticated
+            try{ // try to fetch posts
                 const limit = 5; // number of posts per page
-                const page = req.query.page ? parseInt(req.query.page) : 1;
-                const offset = (page - 1) * limit;
-                let decodedToken = jwt_decode(req.cookies['refresh-token']);
-                const userId = decodedToken.user.userid; 
-        
-                await queryDb('USE forumDB');
-    
+                const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
+                const offset = (page - 1) * limit; // calculate offset
+                let decodedToken = jwt_decode(req.cookies['refresh-token']); // decode JWT token
+                const userId = decodedToken.user.userid; // get user ID from decoded JWT token
+                
+                // Fetch posts from db via user ID, limit, and offset. This version includes the like and save status of each post for the authenticated user
                 const posts = await queryDb(`
                 SELECT 
                     p.post_id,
@@ -57,33 +55,32 @@ class Post {
                 ORDER BY p.timestamp DESC
                 LIMIT ? OFFSET ?
             `, [userId, userId, limit, offset]);
-                res.json(posts);
+                res.json(posts); // return posts as JSON
         
         
-            }catch(error){
-                console.log(error)
+            }catch(error){ // catch error
+                console.log(error) // log error
             }
-        }else{
+        }else{ // if user is not authenticated
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
-    
-            await queryDb('USE forumDB');
-            const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]);
-            res.json(posts);
+            const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
+            const offset = (page - 1) * limit; // calculate offset
+
+            const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]); // fetch posts from db via limit and offset
+            res.json(posts); // return posts as JSON
         }
     }
 
-    static async fetchPostHistory(req, res) {
-        try{
+    static async fetchPostHistory(req, res) { // fetch user's post history
+        try{ // try to fetch post history
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
-            const username = req.params.username;
+            const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
+            const offset = (page - 1) * limit; // calculate offset
+            const username = req.params.username; // get username from request parameters
     
-            await queryDb('USE forumDB');
-            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]);
-    
+            const userId = await queryDb('SELECT user_id FROM Users WHERE username = ?', [username]); // fetch user ID from database using user's username
+            
+            // Fetch all posts posted by the user from db via user ID, limit, and offset
             const posts = await queryDb(`
             SELECT 
                 p.post_id,
@@ -98,24 +95,24 @@ class Post {
             ORDER BY p.timestamp DESC
             LIMIT ? OFFSET ?
         `, [userId[0].user_id, limit, offset]);
-            res.json(posts);
+            res.json(posts); // return posts as JSON
     
     
-        }catch(error){
-            console.log(error)
+        }catch(error){ // catch error
+            console.log(error) // log error
         }
     }
 
-    static async searchPost(req, res){
-        if(res.authenticated){
-            let decodedToken = jwt_decode(req.cookies['refresh-token']);
-            const userId = decodedToken.user.userid; 
-            const searchVal = `%${req.query.query}%`;
+    static async searchPost(req, res){ // Search posts by title or content
+        if(res.authenticated){ // if user is authenticated
+            let decodedToken = jwt_decode(req.cookies['refresh-token']); // decode JWT token
+            const userId = decodedToken.user.userid; // get user ID from decoded JWT token
+            const searchVal = `%${req.query.query}%`; // get search query from request query
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
-    
-            await queryDb('USE forumDB');
+            const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
+            const offset = (page - 1) * limit; // calculate offset
+            
+            // Fetch posts from db via search query, limit, and offset. This version includes the like and save status of each post for the authenticated user
             const posts = await queryDb(`
                 SELECT 
                     Posts.*, 
@@ -135,19 +132,18 @@ class Post {
                 LIMIT ? OFFSET ?`, 
                 [userId, userId, searchVal, searchVal, limit, offset]
             );
-            res.json(posts);
-        }else{
-            const searchVal = `%${req.query.query}%`;
+            res.json(posts); // return posts as JSON
+        }else{ // if user is not authenticated
+            const searchVal = `%${req.query.query}%`; // get search query from request query
             const limit = 5; // number of posts per page
-            const page = req.query.page ? parseInt(req.query.page) : 1;
-            const offset = (page - 1) * limit;
+            const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
+            const offset = (page - 1) * limit; // calculate offset
     
-            await queryDb('USE forumDB');
-            const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]);
-            res.json(posts);
+            const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]); // fetch posts from db via search query, limit, and offset
+            res.json(posts); // return posts as JSON
         }
     }
 
 }
 
-module.exports = Post;
+module.exports = Post; // export post model
