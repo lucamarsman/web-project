@@ -155,7 +155,7 @@ body {
     left: 0;
     top: 0; /* Adjust this value as needed to align with the collapse button */
     bottom: 0;
-    width: 2px; 
+    width: 1px; 
     background-color: #ccc; 
 }
 
