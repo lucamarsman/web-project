@@ -108,26 +108,29 @@ class User { // User class
           }
     }
 
-    static async resetPassword(req, res) { // Reset user password
+    static async resetPassword(req, res) {
         const resetToken = req.cookies['reset-token']; // Get reset token from cookie
-        let newp = req.body.newpassword; // Get new password from request body
-        let newp2 = req.body.newpassword2; // Get new password confirmation from request body
-
-        if (!resetToken) { // If there is no reset token in cookies
-            return res.status(400).send("Reset window expired, please try again"); // Send 400 back to client
+        let newPassword = req.body.newpassword; // Get new password from request body
+        let confirmNewPassword = req.body.newpassword2; // Get new password confirmation from request body
+    
+        if (!resetToken) {
+            return res.status(400).send("Reset window expired, please try again");
         }
-
-        const reToken_payload = jwt_decode(req.cookies['reset-token']).reset_link; // Decode reset token
-        
-        if (newp == newp2) { // If the new passwords match
-            const newHash = await bcrypt.hash(newp, 10); // Hash the new password
-            await queryDb('USE forumDB');
-            await queryDb('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload]); // Update the password in the database
-            await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]); // Set the reset link to null in the database
-            res.redirect('/login'); // Redirect to login page
+    
+        const reToken_payload = jwt_decode(resetToken).reset_link; // Decode reset token
+    
+        if (newPassword === confirmNewPassword) {
+            const newHash = await bcrypt.hash(newPassword, 10); // Hash the new password
+            //await queryDb('USE forumDB');
+            await queryDb('UPDATE Users SET password = ? WHERE reset_link = ?', [newHash, reToken_payload]);
+            await queryDb('UPDATE Users SET reset_link = NULL WHERE reset_link = ?', [reToken_payload]);
+    
+            res.clearCookie("reset-token"); // Clear the reset token cookie
+            return res.redirect('/login'); // Redirect to login page and ensure no further execution with return
+        } else {
+            // Handle the case where the passwords do not match
+            return res.status(400).send("Passwords do not match");
         }
-
-        res.clearCookie("reset-token"); // Clear the reset token cookie after successful password reset
     }
 
     static async getResetLink(req, res) { // Get password reset link
