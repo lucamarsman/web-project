@@ -19,11 +19,11 @@ function nearBottomOfPage() { // Function to check if the user has scrolled to t
 }
 
 function loadPosts(searchQuery = '') { // Function that loads posts to front page
-    if (isLoading || !morePostsAvailable) return;
+    if (isLoading || !morePostsAvailable) return; // If the server is currently loading posts or there are no more posts available, return
 
-    isLoading = true;
+    isLoading = true; // Set isLoading to true to prevent the server from loading more posts
 
-    const loadingIndicator = document.createElement("div");
+    const loadingIndicator = document.createElement("div"); // Create loading indicator, add it to the DOM, and set its attributes
     loadingIndicator.textContent = "Loading...";
     loadingIndicator.id = "loading-indicator";
     postsContainer.appendChild(loadingIndicator);
@@ -39,58 +39,58 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
             isLoading = false; // Set isLoading to false to allow the server to load more posts
             if (posts.length > 0) { // If there are posts available
                 posts.forEach(post => { // Iterate through posts and render them to the DOM
-                    const postElement = document.createElement("div");
+                    const postElement = document.createElement("div"); // Create post element and set its attributes
                     postElement.classList.add("post-item");
                     postElement.setAttribute("data-post-id", post.post_id);
 
-                    const postMain = document.createElement("div");
+                    const postMain = document.createElement("div"); // Create post main element and set its attributes
                     postMain.id = "post-data";
                     
-                    const postInteract = document.createElement("div");
+                    const postInteract = document.createElement("div"); // Create post interact element and set its attributes
                     postInteract.id = "post-interact";
 
-                    const likeCount = document.createElement("p");
+                    const likeCount = document.createElement("p"); // Create like count element and set its attributes
                     likeCount.textContent = post.likeCount;
 
-                    const saveIcon = document.createElement("img");
-                    saveIcon.src = post.saved ? "/public/assets/images/save2.svg" : "/public/assets/images/save.svg";
+                    const saveIcon = document.createElement("img"); // Create save icon element and set its attributes
+                    saveIcon.src = post.saved ? "/public/assets/images/save2.svg" : "/public/assets/images/save.svg"; // If post saved, use filled in save icon, else use empty save icon
                     saveIcon.classList.add("save-icon"); // Changed from id to class
-                    const likeIcon = document.createElement("img");
-                    likeIcon.src = post.liked ? "/public/assets/images/like2.svg" : "/public/assets/images/like.svg";
+                    const likeIcon = document.createElement("img"); // Create like icon element and set its attributes
+                    likeIcon.src = post.liked ? "/public/assets/images/like2.svg" : "/public/assets/images/like.svg"; // If post liked, use filled in like icon, else use empty like icon
                     likeIcon.classList.add("like-icon"); // Changed from id to class
 
-                    postInteract.appendChild(likeIcon);
+                    postInteract.appendChild(likeIcon); // Append like icon, like count, and save icon to post interact element
                     postInteract.appendChild(likeCount);
                     postInteract.appendChild(saveIcon);
 
-                    const postHeader = document.createElement("div")
+                    const postHeader = document.createElement("div") // Create post header element and set its attributes
                     postHeader.classList.add("post-header")
                     
-                    const postTitle = document.createElement("h1");
+                    const postTitle = document.createElement("h1"); // Create post title element and set its attributes
                     postTitle.textContent = post.title;
 
-                    const postUser = document.createElement("p")
+                    const postUser = document.createElement("p") // Create post user element and set its attributes
                     postUser.textContent = post.username
                     postUser.classList.add("poster")
-                    postUser.addEventListener("click", function () {
-                      window.location.href = `view/${post.username}/profile`;
+                    postUser.addEventListener("click", function () { // Add event listener to post username element
+                      window.location.href = `view/${post.username}/profile`; // Redirect to user's profile page
                     })
 
-                    const postContent = document.createElement("p");
+                    const postContent = document.createElement("p"); // Create post content element and set its attributes
                     postContent.textContent = post.content;
                     const postTimestamp = document.createElement("p");
                     postTimestamp.textContent = post.timestamp;
 
-                    postHeader.appendChild(postTitle)
+                    postHeader.appendChild(postTitle) // Append post title and post user to post header element
                     postHeader.appendChild(postUser)
                     
-                    postMain.appendChild(postHeader);
+                    postMain.appendChild(postHeader); // Append post header, post content, and post timestamp to post main element
                     postMain.appendChild(postContent);
                     postMain.appendChild(postTimestamp);
-                    postElement.appendChild(postMain);
+                    postElement.appendChild(postMain); // Append post main and post interact to post element
                     postElement.appendChild(postInteract);
 
-                    postsContainer.appendChild(postElement);
+                    postsContainer.appendChild(postElement); // Append post element to posts container
 
                 });
                 currentPage++; // Increment current page

@@ -77,104 +77,103 @@ Handles nested replies by recursively calling itself and adjusting the depth.
 Adds a collapse button for comment threads with replies.
 Manages visibility of replies and their containers.
 */
-function appendComment(comment, depth) {
-    const commentElement = document.createElement("div");
-    commentElement.classList.add("post-item", `reply-level-${depth}`);
-    commentElement.setAttribute("data-post-id", comment.comment_id);
+function appendComment(comment, depth) { // depth is used to handle nested replies
+    const commentElement = document.createElement("div"); // Create a new comment element
+    commentElement.classList.add("post-item", `reply-level-${depth}`); // Add classes for styling
+    commentElement.setAttribute("data-post-id", comment.comment_id); // Set the comment ID as a data attribute
 
-    const posterInfo = document.createElement("div");
-    posterInfo.classList.add("poster-info");
+    const posterInfo = document.createElement("div"); // Create a container for the poster's info
+    posterInfo.classList.add("poster-info"); // Add classes for styling
 
-    fetch(`/user/${comment.user_id}`)
-        .then(response => response.json())
-        .then(user => {
-            console.log(user)
-            const username = document.createElement("p");
-            username.textContent = user.username;
-            username.classList.add("poster");
-            username.addEventListener("click", function () {
-                window.location.href = `/view/${user.username}/profile`;
+    fetch(`/user/${comment.user_id}`) // Fetch the user's info
+        .then(response => response.json()) // Parse the response as JSON
+        .then(user => { // Pass the user object to the next .then()
+            console.log(user) // Log the user object
+            const username = document.createElement("p"); // Create a <p> tag for the username
+            username.textContent = user.username; // Set the username as the text content of the <p> tag
+            username.classList.add("poster"); // Add classes for styling
+            username.addEventListener("click", function () { // Add an event listener for clicking the username
+                window.location.href = `/view/${user.username}/profile`; // Redirect to the user's profile page
             });
 
 
-            const userImage = document.createElement("img");
-            if(user.image_path == ""){
-                userImage.setAttribute("src", "public/assets/images/default-profile.png");
-            }else{
-                userImage.setAttribute("src", "/" + user.image_path);
+            const userImage = document.createElement("img"); // Create an <img> tag for the user's profile picture
+            if(user.image_path == ""){ // If the user has no profile picture
+                userImage.setAttribute("src", "public/assets/images/default-profile.png"); // Set the default profile picture
+            }else{ // If the user has a profile picture
+                userImage.setAttribute("src", "/" + user.image_path); // Set the user's profile picture
             }
 
-            posterInfo.appendChild(userImage);
-            posterInfo.appendChild(username);
+            posterInfo.appendChild(userImage); // Append the user's profile picture to the poster info container
+            posterInfo.appendChild(username); // Append the username to the poster info container
         })
-        .catch(error => { 
-            console.error('Failed to fetch user:', error);
+        .catch(error => { // Catch any errors
+            console.error('Failed to fetch user:', error); // Log the error
         });
 
-    commentElement.appendChild(posterInfo);
+    commentElement.appendChild(posterInfo); // Append the poster info container to the comment element
 
-    const commentContent = document.createElement("p");
-    commentContent.textContent = comment.content;
-    commentElement.appendChild(commentContent);
+    const commentContent = document.createElement("p"); // Create a <p> tag for the comment content
+    commentContent.textContent = comment.content; // Set the comment content as the text content of the <p> tag
+    commentElement.appendChild(commentContent); // Append the comment content to the comment element
 
-    const commentTimestamp = document.createElement("p");
-    commentTimestamp.textContent = comment.timestamp;
-    commentElement.appendChild(commentTimestamp);
+    const commentTimestamp = document.createElement("p"); // Create a <p> tag for the comment timestamp
+    commentTimestamp.textContent = comment.timestamp; // Set the comment timestamp as the text content of the <p> tag
+    commentElement.appendChild(commentTimestamp); // Append the comment timestamp to the comment element
 
-    const replyBtn = document.createElement("img");
-    replyBtn.setAttribute("src", "/public/assets/images/reply.svg");
-    replyBtn.classList.add("reply-button");
-    replyBtn.setAttribute("data-comment-id", comment.comment_id);
-    replyBtn.setAttribute('data-parent-id', comment.comment_id);
+    const replyBtn = document.createElement("img"); // Create an <img> tag for the reply button
+    replyBtn.setAttribute("src", "/public/assets/images/reply.svg"); // Set the reply button icon
+    replyBtn.classList.add("reply-button"); // Add classes for styling
+    replyBtn.setAttribute("data-comment-id", comment.comment_id); // Set the comment ID as a data attribute
+    replyBtn.setAttribute('data-parent-id', comment.comment_id); // Set the parent ID as a data attribute
 
-    const commentForm = document.createElement("form");
-    commentForm.id = "comment-form-" + comment.comment_id;
-    commentForm.classList.add("comment-form");
+    const commentForm = document.createElement("form"); // Create a <form> tag for the comment form
+    commentForm.id = "comment-form-" + comment.comment_id; // Set the comment ID as the form ID
+    commentForm.classList.add("comment-form"); // Add classes for styling
     commentForm.style.display = "none"; // Initially hidden
     
-    const textarea = document.createElement("textarea");
-    textarea.id = "newcomment";
-    textarea.setAttribute("maxlength", "500");
-    textarea.setAttribute("name", "comment");
+    const textarea = document.createElement("textarea"); // Create a <textarea> tag for the comment text
+    textarea.id = "newcomment"; // Set the comment ID as the textarea ID
+    textarea.setAttribute("maxlength", "500"); // Set the maximum length of the comment
+    textarea.setAttribute("name", "comment"); // Set the name of the comment
 
-    const submitButton = document.createElement("button");
-    submitButton.id = "post-comment";
-    submitButton.type = "submit";
-    submitButton.textContent = "Post";
+    const submitButton = document.createElement("button"); // Create a <button> tag for the submit button
+    submitButton.id = "post-comment"; // Set the comment ID as the submit button ID
+    submitButton.type = "submit"; // Set the type of the button to submit
+    submitButton.textContent = "Post"; // Set the text content of the button
                 
-    submitButton.addEventListener("click", function(event) {
-        event.preventDefault();
+    submitButton.addEventListener("click", function(event) { // Add an event listener for clicking the submit button on the comment form
+        event.preventDefault(); // Prevent the default action of the submit button
         const parentId = replyBtn.getAttribute('data-parent-id'); // Get the parent ID
-        const replyText = textarea.value;
-        const postId = comment.post_id;
+        const replyText = textarea.value; // Get the text of the reply
+        const postId = comment.post_id; // Get the post ID
 
         // comment route for returning comment replies
         const postUrl = '/comments/reply'; 
 
-        const postData = {
-            parentId: parentId,
-            text: replyText,
-            postId: postId
+        const postData = { // Create a JSON object for the POST request
+            parentId: parentId, // Set the parent ID
+            text: replyText, // Set the reply text
+            postId: postId // Set the post ID
         };
 
-        // Fetch comment replies
-        fetch(postUrl, {
+        fetch(postUrl, { // Send a POST request to the server with the JSON object representing the reply
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(postData)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            const replyDepth = data.depth || 1;
-            appendComment(data, replyDepth);
-            textarea.value = '';
-            commentForm.style.display = "none";
+        .then(response => response.json()) // Parse the response as JSON
+        .then(data => { // Pass the data object to the next .then()
+            console.log('Success:', data); // Log the data object
+            const replyDepth = data.depth || 1; // Set the reply depth to 1 if it is not defined
+            appendComment(data, replyDepth); // Append the reply to the DOM at the appropriate depth relative to the parent comment recursively
+            textarea.value = ''; // Clear the textarea
+            commentForm.style.display = "none"; // Hide the comment form
         
         })
-        .catch((error) => {
+        .catch((error) => { // Catch any errors
             console.error('Error:', error);
             // Handle errors here
         });
@@ -184,9 +183,9 @@ function appendComment(comment, depth) {
     commentForm.appendChild(textarea);
     commentForm.appendChild(submitButton);
 
-    replyBtn.addEventListener("click", function() {
-        commentForm.style.display = commentForm.style.display === "none" ? "block" : "none";
-        if (commentForm.style.display === "block") {
+    replyBtn.addEventListener("click", function() { // Add an event listener for clicking the reply button
+        commentForm.style.display = commentForm.style.display === "none" ? "block" : "none"; // Toggle the visibility of the comment form
+        if (commentForm.style.display === "block") { // If the comment form is visible
             // Find the username <p> tag
             const usernameEl = commentElement.querySelector('.poster');
             if (usernameEl) {
@@ -197,14 +196,14 @@ function appendComment(comment, depth) {
         }
     });
 
-    const commentReply = document.createElement("div");
-    commentReply.id = "comment-reply";
-    commentReply.appendChild(commentTimestamp);
-    commentReply.appendChild(replyBtn);
-    commentElement.appendChild(commentReply);
-    commentElement.appendChild(commentForm);
+    const commentReply = document.createElement("div"); // Create a <div> tag for the comment reply container
+    commentReply.id = "comment-reply"; // Set the comment ID as the reply container ID
+    commentReply.appendChild(commentTimestamp); // Append the comment timestamp to the reply container
+    commentReply.appendChild(replyBtn); // Append the reply button to the reply container
+    commentElement.appendChild(commentReply); // Append the reply container to the comment element
+    commentElement.appendChild(commentForm); // Append the comment form to the comment element
 
-    document.getElementById("commentsContainer").appendChild(commentElement);
+    document.getElementById("commentsContainer").appendChild(commentElement); // Append the comment element to the comments container
 
 
     // Create a container for replies
@@ -224,6 +223,9 @@ function appendComment(comment, depth) {
     }
 
     // Process replies if they exist
+    
+    //TODO: Process replies via fetch method on fetchReplies endpoint and load them using pagination.
+    //Add a load more button that increments the page number and fetches more replies.
     if (comment.replies && comment.replies.length > 0) {
         const repliesContainer = document.createElement("div");
         repliesContainer.classList.add("replies-container");
