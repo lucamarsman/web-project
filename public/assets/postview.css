@@ -98,19 +98,18 @@ body {
 
 .post-item {
     background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    word-wrap: break-word;
     padding: 10px;
     margin-bottom: 10px;
 }
 
 /* Indentation for threaded comments */
 .reply-level-0 { margin-left: 0px; }
-.reply-level-1 { margin-left: 20px; }
-.reply-level-2 { margin-left: 40px; }
-.reply-level-3 { margin-left: 60px; }
-.reply-level-4 { margin-left: 80px; }
-.reply-level-5 { margin-left: 100px; }
+.reply-level-1 { margin-left: 10px; }
+.reply-level-2 { margin-left: 20px; }
+.reply-level-3 { margin-left: 30px; }
+.reply-level-4 { margin-left: 40px; }
+.reply-level-5 { margin-left: 50px; }
 
 
 .post-item > form {
