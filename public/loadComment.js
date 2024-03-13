@@ -199,7 +199,9 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
     const commentReply = document.createElement("div"); // Create a <div> tag for the comment reply container
     commentReply.id = "comment-reply"; // Set the comment ID as the reply container ID
     commentReply.appendChild(commentTimestamp); // Append the comment timestamp to the reply container
-    commentReply.appendChild(replyBtn); // Append the reply button to the reply container
+    if(depth < 5){
+        commentReply.appendChild(replyBtn); // Append the reply button to the reply container
+    }
     commentElement.appendChild(commentReply); // Append the reply container to the comment element
     commentElement.appendChild(commentForm); // Append the comment form to the comment element
 
