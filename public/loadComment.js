@@ -131,6 +131,13 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
     commentForm.id = "comment-form-" + comment.comment_id; // Set the comment ID as the form ID
     commentForm.classList.add("comment-form"); // Add classes for styling
     commentForm.style.display = "none"; // Initially hidden
+
+    const inlineToast = document.createElement("div");
+    inlineToast.id = "inline-toast-" + comment.comment_id;
+    inlineToast.classList.add("inline-toast");
+    inlineToast.style.display = "none";
+
+    commentForm.appendChild(inlineToast);
     
     const textarea = document.createElement("textarea"); // Create a <textarea> tag for the comment text
     textarea.id = "newcomment"; // Set the comment ID as the textarea ID
