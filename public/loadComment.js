@@ -305,4 +305,41 @@ document.addEventListener('DOMContentLoaded', function() {
             loadComments(postId);
         }
     }, 100));
+
+    document.getElementById('comment-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.status === 429) {
+                // Handle rate limiting
+                document.getElementById('inline-toast-main').textContent = "You're submitting too fast. Please wait a moment.";
+                document.getElementById('inline-toast-main').style.display = 'block';
+            } else if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Handle the response in the way your app requires
+        })
+        .then(data => {
+            if(data && data.comment) {
+                // Create and append the new comment element
+                appendComment(data.comment, 0); // Assuming appendComment is a function you'd use to add comments to the DOM
+                
+                // Clear the comment form
+                form.reset();
+
+                
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
 });
