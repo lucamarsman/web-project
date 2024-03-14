@@ -4,6 +4,7 @@ const jwt_decode = require("jwt-decode"); // import jwt_decode
 class Comment { // comment model
     static async createComment(req, res) { // create comment
         if(res.authenticated){ // if user is authenticated
+            console.log(req.body);
             const postId = req.params.postId // get post ID from request parameters
             let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
             const uid = decodedToken.user.userid; // get user ID from decoded JWT token
