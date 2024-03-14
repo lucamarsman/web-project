@@ -136,8 +136,6 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
     inlineToast.id = "inline-toast-" + comment.comment_id;
     inlineToast.classList.add("inline-toast");
     inlineToast.style.display = "none";
-
-    commentForm.appendChild(inlineToast);
     
     const textarea = document.createElement("textarea"); // Create a <textarea> tag for the comment text
     textarea.id = "newcomment"; // Set the comment ID as the textarea ID
@@ -149,46 +147,71 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
     submitButton.type = "submit"; // Set the type of the button to submit
     submitButton.textContent = "Post"; // Set the text content of the button
                 
-    submitButton.addEventListener("click", function(event) { // Add an event listener for clicking the submit button on the comment form
-        event.preventDefault(); // Prevent the default action of the submit button
-        const parentId = replyBtn.getAttribute('data-parent-id'); // Get the parent ID
-        const replyText = textarea.value; // Get the text of the reply
-        const postId = comment.post_id; // Get the post ID
-
-        // comment route for returning comment replies
-        const postUrl = '/comments/reply'; 
-
-        const postData = { // Create a JSON object for the POST request
-            parentId: parentId, // Set the parent ID
-            text: replyText, // Set the reply text
-            postId: postId // Set the post ID
+    submitButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        const parentId = replyBtn.getAttribute('data-parent-id');
+        const replyText = textarea.value;
+        const postId = comment.post_id;
+    
+        const postUrl = '/comments/reply';
+        const postData = {
+            parentId: parentId,
+            text: replyText,
+            postId: postId
         };
-
-        fetch(postUrl, { // Send a POST request to the server with the JSON object representing the reply
+    
+        fetch(postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(postData)
         })
-        .then(response => response.json()) // Parse the response as JSON
-        .then(data => { // Pass the data object to the next .then()
-            console.log('Success:', data); // Log the data object
-            const replyDepth = data.depth || 1; // Set the reply depth to 1 if it is not defined
-            appendComment(data, replyDepth); // Append the reply to the DOM at the appropriate depth relative to the parent comment recursively
-            textarea.value = ''; // Clear the textarea
-            commentForm.style.display = "none"; // Hide the comment form
-        
+        .then(response => {
+            if (response.status === 429) {
+                // Rate limit exceeded, but the response may not be in JSON format
+                response.text().then(text => {
+                    try {
+                        // Try to parse the text as JSON
+                        const data = JSON.parse(text);
+                        const message = data.message || "You're sending requests too quickly. Please slow down.";
+                        displayRateLimitMessage(message);
+                    } catch (e) {
+                        // If it's not JSON, use the text directly
+                        displayRateLimitMessage(text);
+                    }
+                });
+                return; // Prevent further processing
+            } else if (!response.ok) {
+                throw new Error(`Network response was not ok, status: ${response.status}`);
+            }
+            return response.json();
         })
-        .catch((error) => { // Catch any errors
+        .then(data => {
+            if(data) {
+                console.log('Success:', data);
+                const replyDepth = data.depth || 1;
+                appendComment(data, replyDepth);
+                textarea.value = '';
+                commentForm.style.display = "none";
+            }
+        })
+        .catch((error) => {
             console.error('Error:', error);
-            // Handle errors here
+            // Optionally, handle other network errors
         });
+
+        function displayRateLimitMessage(message) {
+            const inlineToast = document.getElementById("inline-toast-" + comment.comment_id);
+            inlineToast.textContent = message;
+            inlineToast.style.display = 'block';
+        }
     });
 
     // Append the textarea and button to the form
     commentForm.appendChild(textarea);
     commentForm.appendChild(submitButton);
+    commentForm.appendChild(inlineToast);
 
     replyBtn.addEventListener("click", function() { // Add an event listener for clicking the reply button
         commentForm.style.display = commentForm.style.display === "none" ? "block" : "none"; // Toggle the visibility of the comment form
