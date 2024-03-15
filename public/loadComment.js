@@ -54,6 +54,7 @@ function loadComments(postId) {
             }
             if (comments.length > 0) {
                 comments.forEach(comment => {
+                    console.log(comment)
                     appendComment(comment, 0); // Render each top-level comment and its replies
                 });
                 currentPage++;
@@ -321,20 +322,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Handle rate limiting
                 document.getElementById('inline-toast-main').textContent = "You're submitting too fast. Please wait a moment.";
                 document.getElementById('inline-toast-main').style.display = 'block';
+                return null; // Ensure no further processing for this promise chain
             } else if (!response.ok) {
-                throw new Error('Network response was not ok');
+                // Handle other HTTP errors
+                throw new Error(`Network response was not ok, status: ${response.status}`);
             }
-            return response.json(); // Handle the response in the way your app requires
+            return response.json(); // Parse JSON data from the response
         })
         .then(data => {
-            if(data && data.comment) {
-                // Create and append the new comment element
-                appendComment(data.comment, 0); // Assuming appendComment is a function you'd use to add comments to the DOM
-                
-                // Clear the comment form
-                form.reset();
+            if (data && data.content) {
+                // Assuming 'appendComment' is correctly implemented to update the DOM
+                appendComment(data, 0);
 
-                
+                // Clear the comment form after successful submission
+                form.reset();
+            } else {
+                // Handle the case where 'data.comment' is not available
+                console.error('Comment data is missing');
             }
         })
         .catch(error => {
