@@ -5,6 +5,7 @@ const { generateAccessToken, validateToken, generateRefreshToken, generateResetT
 const crypto = require('crypto'); // Import crypto for generating random bytes
 const nodemailer = require('nodemailer') // Import nodemailer for sending emails
 const { getOAuthAccessToken} = require('../OAuth.js') // Import OAuth.js functions for use with nodemailer
+const { generateRegisterToken } = require("../Auth.js")
 
 async function savePost(postId, userId) { // Save a post
     try { // Try to save the post
@@ -50,7 +51,63 @@ class User { // User class
     }
 
     static async register(req, res) {
-        if(!res.authenticated){ // Check if user is authenticated
+        if(!res.authenticated){ // Check if user is logged in
+            let registerToken = req.cookies['register-token'];
+            if(!registerToken) { // Server not awaiting email confirmation
+                let register_link = crypto.randomBytes(20).toString('hex'); // Generate random bytes for reset link
+                const register_token = generateRegisterToken(req.body, register_link); // Generate register token using user id and reset link
+                let register_expiry = new Date(new Date().getTime() + 5 * 60 * 1000); // Set register token expiry to 5 minutes
+                res.cookie('register-token', register_token, { // Set register token cookie
+                    expires: register_expiry,
+                    httpOnly: true
+                });
+
+
+                let email = req.body.email;
+                let password = req.body.password;
+                let username = req.body.name;
+                let regLinkTs = new Date(new Date().getTime());
+                await queryDb('INSERT INTO registry (email, password, username, register_link, register_link_timestamp) VALUES (?,?,?,?,?)', [email, password, username, register_link, regLinkTs]); // Like the post
+                
+                const accessToken = await getOAuthAccessToken();
+
+                let transporter = nodemailer.createTransport({ // Create nodemailer transporter
+                    service: 'gmail',
+                    auth: {
+                        type: 'OAuth2',
+                        user: process.env.nodemaileruser,
+                        accessToken: accessToken,
+                        clientId: process.env.googleapiclient,
+                        clientSecret: process.env.googleapisecret,
+                        refreshToken: process.env.oauthrefreshtoken,
+                    }
+                });
+
+                let registerLink = `localhost:3000/register?token=${register_link}`; // Set reset link
+    
+                let mailOptions = { // Set mail options
+                    from: process.env.nodemaileruser,
+                    to: req.body.email,
+                    subject: 'Email Confirmation - Forum App',
+                    text: `Here is your registration link: ${registerLink}`
+                };
+                
+                transporter.sendMail(mailOptions, function(error, info){ // Send email with reset link
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                    }
+                });
+    
+    
+    
+                res.status(200).send('A confirmation email has been sent to the email submitted'); // Send 200 back to client
+            }else { // Server still awaiting email confirmation
+                res.status(500).json({ success: false, message: "Internal server error." }); // TODO: Handle this error correctly
+            }
+
+            /*
             try { // Try to register user
                 const { name, password, email } = req.body;
                 const userExists = await User.findByEmailOrUsername(email, name);
@@ -66,7 +123,8 @@ class User { // User class
                 console.log("Something went wrong", error);
                 // Handle the error appropriately
             }
-        }else{ // If user is unauthenticated, redirect to home page
+            */
+        }else{ // If user is logged in, redirect to home page
             res.redirect('/');
         }
     }
