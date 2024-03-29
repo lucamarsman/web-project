@@ -2,9 +2,10 @@ const res = require("express/lib/response");
 const { sign, verify } = require("jsonwebtoken");
 require("dotenv").config()
 
-
-
-
+function generateRegisterToken(registerInfo, confirmationLink){
+    const registerToken = sign({ registerInfo, confirmationLink }, process.env.token, { expiresIn: '5m' })
+    return registerToken
+}
 
 //returns an access token
 function generateAccessToken(user) {
@@ -91,4 +92,4 @@ function validateUser(req, res, next) {
     
 }
 
-module.exports = { generateAccessToken, validateToken, validateRefreshToken, generateRefreshToken, generateResetToken, validateUser }
+module.exports = { generateAccessToken, validateToken, validateRefreshToken, generateRefreshToken, generateResetToken, validateUser, generateRegisterToken }
