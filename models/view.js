@@ -1,7 +1,30 @@
 const queryDb = require('../utils/queryDb.js'); // import queryDb
 const jwt_decode = require("jwt-decode"); // import jwt_decode
+const User = require('../models/user.js'); // Import user model
 
 class View { // view model
+    static async renderRegisterForm(req, res){
+        res.render('register.ejs');
+    }
+
+    static async renderRegisterConfirm(req, res) {
+        if(!req.cookies['register-token']) {
+            console.log("Confirmation link expired");
+            res.end();
+        }
+        
+        let decodedToken = jwt_decode(req.cookies['register-token']);
+        let email = decodedToken.registerInfo.email;
+        let password = decodedToken.registerInfo.password;
+        let username = decodedToken.registerInfo.name;
+
+        await User.create(email, password, username);
+        await queryDb('UPDATE registry SET register_link = ?, register_link_timestamp = ? WHERE email = ?', [null, null, email]);
+
+        res.status(204).send('Account successfully created!');
+
+    }
+
     static async viewProfile(req, res) { // view a user's profile
         if(res.authenticated){ // if user is authenticated
             let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
