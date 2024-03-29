@@ -1,26 +1,12 @@
 const User = require('../models/user.js'); // Import user model
 
 exports.register = async (req, res) => { // Register user
-    if(!res.authenticated){ // Check if user is authenticated
-        try { // Try to register user
-            const { name, password, email } = req.body;
-            const userExists = await User.findByEmailOrUsername(email, name);
-    
-            if (!userExists) {
-                await User.create(name, password, email);
-                res.redirect("/login");
-            } else {
-                console.log("Username or email already taken.");
-                // Optionally, redirect back to the registration page or show an error message
-            }
-        } catch (error) { // Catch any errors
-            console.log("Something went wrong", error);
-            // Handle the error appropriately
-        }
-    }else{ // If user is unauthenticated, redirect to home page
-        res.redirect('/');
+    try {
+        User.register(req, res);
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
     }
-    
 };
 
 exports.logout= async (req, res) => { // Logout user
