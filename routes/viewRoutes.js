@@ -9,6 +9,8 @@ router.get('/login', ViewController.renderLogin); // render login page
 
 router.get('/register', ViewController.renderRegister); // render register page
 
+router.get('/register:register_link', ViewController.renderRegister); // render register confirmation page
+
 router.get('/reset', ViewController.renderReset); // render reset page
 
 router.get('/reset/:reset_link', ViewController.renderResetLink); // render reset link page
