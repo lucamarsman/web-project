@@ -5,7 +5,12 @@ exports.renderLogin = async (req, res) => { // render login page
 };
 
 exports.renderRegister = async (req, res) => { // render register page
-    res.render('register.ejs');
+    const token = req.query.token;
+    if (token) {
+        View.renderRegisterConfirm(req, res)
+    } else {
+        View.renderRegisterForm(req, res)
+    }
 };
 
 exports.renderHomepage = async (req, res) => { // render homepage
