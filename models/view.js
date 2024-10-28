@@ -3,6 +3,8 @@ const jwt_decode = require("jwt-decode"); // import jwt_decode
 const User = require('../models/user.js'); // Import user model
 
 class View { // view model
+
+    //TODO: Combine render register and renderRegisterConfirm. Check if token exists in req and proceed to execute correct logic based on its existence.
     static async renderRegisterForm(req, res){
         res.render('register.ejs');
     }
