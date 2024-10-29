@@ -56,7 +56,7 @@
                 })
                 .then(response => {
                     if (response.status === 409) { // Handle unauthorized response
-                        showPopup("Account already exists")
+                        showPopup("An account already exists with that email or username")
                     } else if (response.ok) {
                         showPopup("A confirmation link has been sent to your email")
                     }

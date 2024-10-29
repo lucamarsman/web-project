@@ -53,7 +53,7 @@ class User { // User class
     static async register(req, res) {
         let email = req.body.email;
         let password = req.body.password;
-        let username = req.body.name;
+        let username = req.body.username;
         let accountExists = await this.findByEmailOrUsername(email,username);
         if(!accountExists){ // Check if account already exists
                 let register_link = crypto.randomBytes(20).toString('hex'); // Generate random bytes for reset link
