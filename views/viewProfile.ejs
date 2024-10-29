@@ -55,9 +55,22 @@
         }
      })
 
+  let postHistoryBtn = document.getElementById("postHistory");
+  let commentHistoryBtn = document.getElementById("commentHistory");
 
+  postHistoryBtn.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
 
+    postHistoryBtn.classList.add("active");
+  })
 
+  commentHistoryBtn.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
+
+    commentHistoryBtn.classList.add("active");
+  })
 
   </script>
 

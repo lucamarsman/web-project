@@ -121,7 +121,9 @@ button:hover {
 
 /* Active Button Highlight */
 .active {
-    background-color: #007bff;
+    background-color: #2c2e3d;
+    color:white;
+    transform: scale(1.1);
 }
 
 /* Posts Container */

@@ -145,6 +145,46 @@
 
   }
 
+  let postHistoryBtn = document.getElementById("postHistory");
+  let commentHistoryBtn = document.getElementById("commentHistory");
+  let likedPosts = document.getElementById("likedPosts");
+  let savedPosts = document.getElementById("savedPosts");
+
+  postHistoryBtn.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
+    likedPosts.classList.remove("active");
+    savedPosts.classList.remove("active");
+
+    postHistoryBtn.classList.add("active");
+  })
+
+  commentHistoryBtn.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
+    likedPosts.classList.remove("active");
+    savedPosts.classList.remove("active");
+
+    commentHistoryBtn.classList.add("active");
+  })
+
+  likedPosts.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
+    likedPosts.classList.remove("active");
+    savedPosts.classList.remove("active");
+
+    likedPosts.classList.add("active");
+  })
+
+  savedPosts.addEventListener("click", () => {
+    postHistoryBtn.classList.remove("active");
+    commentHistoryBtn.classList.remove("active");
+    likedPosts.classList.remove("active");
+    savedPosts.classList.remove("active");
+
+    savedPosts.classList.add("active");
+  })
 
 </script>
 
