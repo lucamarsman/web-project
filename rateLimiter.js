@@ -13,4 +13,18 @@ const commentLimiter = rateLimit({
     skip: (req,res) => !res.authenticated
 });
 
-module.exports = {postLimiter, commentLimiter};
+const registerLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 15 minutes
+    max: 1, // Limit each IP to 1 register every minute
+    statusCode: 429,
+    skip: (req,res) => !res.authenticated
+});
+
+const resetLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 15 minutes
+    max: 1, // Limit each IP to 1 register every minute
+    statusCode: 429,
+    skip: (req,res) => !res.authenticated
+});
+
+module.exports = {postLimiter, commentLimiter, registerLimiter, resetLimiter};

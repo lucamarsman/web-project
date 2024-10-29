@@ -51,23 +51,23 @@ class User { // User class
     }
 
     static async register(req, res) {
-        if(!res.authenticated){ // Check if user is logged in
-            let registerToken = req.cookies['register-token'];
-            if(!registerToken) { // Server not awaiting email confirmation
+        let email = req.body.email;
+        let password = req.body.password;
+        let username = req.body.name;
+        let accountExists = await this.findByEmailOrUsername(email,username);
+        if(!accountExists){ // Check if account already exists
                 let register_link = crypto.randomBytes(20).toString('hex'); // Generate random bytes for reset link
-                const register_token = generateRegisterToken(req.body, register_link); // Generate register token using user id and reset link
+                //const register_token = generateRegisterToken(req.body, register_link); // Generate register token using user id and reset link
                 let register_expiry = new Date(new Date().getTime() + 5 * 60 * 1000); // Set register token expiry to 5 minutes
-                res.cookie('register-token', register_token, { // Set register token cookie
+                res.cookie('register-token', register_link, { // Set register token cookie
                     expires: register_expiry,
                     httpOnly: true
                 });
 
+                const hashedPassword = await bcrypt.hash(password, 10);
 
-                let email = req.body.email;
-                let password = req.body.password;
-                let username = req.body.name;
                 let regLinkTs = new Date(new Date().getTime());
-                await queryDb('INSERT INTO registry (email, password, username, register_link, register_link_timestamp) VALUES (?,?,?,?,?)', [email, password, username, register_link, regLinkTs]); // Like the post
+                await queryDb('INSERT INTO registry (email, password, username, register_link, register_link_timestamp) VALUES (?,?,?,?,?)', [email, hashedPassword, username, register_link, regLinkTs]);
                 
                 const accessToken = await getOAuthAccessToken();
 
@@ -83,8 +83,8 @@ class User { // User class
                     }
                 });
 
-                let registerLink = `localhost:3000/register?token=${register_link}`; // Set reset link
-    
+                let registerLink = `localhost:3000/user/register/verify?token=${register_link}`; // Set reset link
+                
                 let mailOptions = { // Set mail options
                     from: process.env.nodemaileruser,
                     to: req.body.email,
@@ -100,32 +100,47 @@ class User { // User class
                     }
                 });
     
-    
-    
                 res.status(200).send('A confirmation email has been sent to the email submitted'); // Send 200 back to client
-            }else { // Server still awaiting email confirmation
-                res.status(500).json({ success: false, message: "Internal server error." }); // TODO: Handle this error correctly
-            }
+            
 
-            /*
-            try { // Try to register user
-                const { name, password, email } = req.body;
-                const userExists = await User.findByEmailOrUsername(email, name);
-        
-                if (!userExists) {
-                    await User.create(name, password, email);
-                    res.redirect("/login");
-                } else {
-                    console.log("Username or email already taken.");
-                    // Optionally, redirect back to the registration page or show an error message
-                }
-            } catch (error) { // Catch any errors
-                console.log("Something went wrong", error);
-                // Handle the error appropriately
+        }else{ // If account already exists
+            res.status(409).json({ success: false, message: "Account already exists" });
+        }
+    }
+
+    static async registerConfirm(req, res) {
+        const { token } = req.query;
+
+        if (!req.cookies['register-token']) {
+            return res.status(400).send("Confirmation window expired, please try again");
+        }
+
+        // Retrieve user information based on the token in the registry table
+        const pendingUser = await queryDb('SELECT email, password, username, register_link FROM registry WHERE register_link = ?', [token]);
+        if (!pendingUser || pendingUser[0].register_link !== token) {
+            return res.status(400).send("Invalid or expired registration link");
+        }
+
+        const { email, password, username } = pendingUser[0];
+
+        try {
+            const userExists = await this.findByEmailOrUsername(email, username);
+
+            if (!userExists) {
+                // Create the user in the main users table
+                await queryDb('INSERT INTO users (username, password, email) VALUES (?, ?, ?)', [username, password, email]);
+
+                // Clean up the registry table
+                await queryDb('DELETE FROM registry WHERE register_link = ?', [token]);
+
+                res.redirect("/login");
+            } else {
+                console.log("Username or email already taken.");
+                return res.status(409).json({ success: false, message: "Username or email already taken." });
             }
-            */
-        }else{ // If user is logged in, redirect to home page
-            res.redirect('/');
+        } catch (error) {
+            console.error("Registration confirmation error:", error);
+            res.status(500).send("Something went wrong during account creation");
         }
     }
 

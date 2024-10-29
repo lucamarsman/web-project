@@ -9,7 +9,7 @@
 <body>
     
     <div id ="form">
-        <form name = "name" action = "/user/register" method="POST">
+        <form name = "name" action = "/user/register" method="POST" id="registerForm">
             <label for="email"><b>Email</b></label>
                 <input type="email" placeholder="Enter Email" name="email" id="email" required> 
             <br>
@@ -27,7 +27,53 @@
 
         </form>
 
+        <div id="errorPopup" style="display: none;">
+            <p id="errorMessage"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        
+        <script>
+            document.getElementById("registerForm").addEventListener("submit", async function(event) {
+                event.preventDefault(); // Prevent the default form submission
 
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const username = document.getElementById("name").value;
+        
+                const postUrl = '/user/register';
+                const postData = {
+                    email: email,
+                    password: password,
+                    username: username
+                };
+            
+                fetch(postUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                })
+                .then(response => {
+                    if (response.status === 409) { // Handle unauthorized response
+                        showPopup("Account already exists")
+                    } else if (response.ok) {
+                        showPopup("A confirmation link has been sent to your email")
+                    }
+                })
+            });
+        
+            // Function to show the popup
+            function showPopup(message) {
+                document.getElementById("errorMessage").textContent = message;
+                document.getElementById("errorPopup").style.display = "block";
+            }
+        
+            // Function to close the popup
+            function closePopup() {
+                document.getElementById("errorPopup").style.display = "none";
+            }
+        </script>
 
 </body>
 </html>

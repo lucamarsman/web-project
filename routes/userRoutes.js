@@ -18,6 +18,7 @@ const upload = multer({ storage: storage });
 
 // User authentication and registration routes
 router.post('/register', validateToken, userController.register); // Register a new user
+router.get('/register/verify', validateToken, userController.registerConfirm); // Register a new user
 router.post("/login", userController.login); // Login a user
 router.get('/logout', userController.logout); // Logout a user
 router.post('/reset', userController.getResetLink); // Send password reset link

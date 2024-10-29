@@ -9,6 +9,15 @@ exports.register = async (req, res) => { // Register user
     }
 };
 
+exports.registerConfirm = async (req, res) => { // Register user
+    try {
+        User.registerConfirm(req, res);
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
+    }
+};
+
 exports.logout= async (req, res) => { // Logout user
     try {
         User.logout(req, res);
