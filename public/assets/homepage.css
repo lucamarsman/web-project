@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-image: url( './images/low-poly-grid-haikei.svg' );;
+    background-image: url( './images/low-poly-grid-haikei.svg' );
     color: #2c2e3d;
 }
 
@@ -16,8 +16,16 @@ body {
 
 #logo{
     width: 8%;
-    height: auto;
     border-radius: 100px;
+}
+
+#logo:hover{
+    cursor:pointer;
+}
+
+#logo > img {
+    max-height: 100px;
+    border-radius:100px;
 }
 
 #button-container {
@@ -30,7 +38,7 @@ body {
     display: flex;
     justify-content: space-between; /* Align items to the edges */
     align-items: center; /* Vertically center the items */
-    background-color: #ff6f61;
+    background-color: #a16dc1;
     color: white;
     padding: 10px 20px;
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
@@ -51,13 +59,15 @@ body {
 
 #main-nav button:hover {
     background-color: #2c2e3d;
-    color:#3f51b5;
+    color:white;
     transform: scale(1.1);
 }
 
 /* Search Bar Styling */
 #login-pop {
     padding: 20px;
+    padding-top:0;
+    padding-bottom:0;
     text-align: center;
 }
 
@@ -97,26 +107,25 @@ body {
 
 #search-button:hover, #create-post:hover {
     background-color: #2c2e3d;
-    color:#3f51b5;
+    color:white;
     transform:scale(1.1);
 }
 
 #postsContainer {
     width: 65%;
     margin: 20px auto;
+    margin-top:0;
     background: rgba( 255, 255, 255, 0.35 );
     box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
     backdrop-filter: blur( 1.5px );
     -webkit-backdrop-filter: blur( 1.5px );
-    border-radius: 10px;
-    border: 1px solid #b0b3b8;
-    border-radius:25px;
     padding-top:30px;
     padding-bottom:30px;
 }
 
 .post-item {
-    background-color: #f3f4f6;
+    background-color: #e3e4f1;
+    color:#2c2e3d;
     border-radius: 5px;
     padding: 20px;
     margin-top:20px;
