@@ -19,7 +19,7 @@ class Comment { // comment model
             // Return the new comment as JSON
             res.json(newComment[0]);
          }else{ // if user is not authenticated
-            res.redirect('/login'); // redirect to login page
+            return res.status(401).json({ redirectUrl: '/login' });
          }
     }
 
@@ -43,7 +43,7 @@ class Comment { // comment model
             // Return the new comment as JSON
             res.json(newComment[0]);
         }else{ // if user is not authenticated
-            res.redirect('/login'); // redirect to login page
+            return res.status(401).json({ redirectUrl: '/login' });
         }
         
     }

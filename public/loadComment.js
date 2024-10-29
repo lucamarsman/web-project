@@ -169,7 +169,14 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
             body: JSON.stringify(postData)
         })
         .then(response => {
-            if (response.status === 429) {
+            if (response.status === 401) { // Handle unauthorized response
+                return response.json().then(data => {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl; // Redirect to login
+                    }
+                });
+            }
+            else if (response.status === 429) {
                 // Rate limit exceeded, but the response may not be in JSON format
                 response.text().then(text => {
                     try {
@@ -318,7 +325,14 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData,
         })
         .then(response => {
-            if (response.status === 429) {
+            if (response.status === 401) { // Handle unauthorized response
+                return response.json().then(data => {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl; // Redirect to login
+                    }
+                });
+            }
+            else if (response.status === 429) {
                 // Handle rate limiting
                 document.getElementById('inline-toast-main').textContent = "You're submitting too fast. Please wait a moment.";
                 document.getElementById('inline-toast-main').style.display = 'block';

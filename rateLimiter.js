@@ -9,7 +9,8 @@ const postLimiter = rateLimit({
 const commentLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 15 minutes
     max: 1, // Limit each IP to 1 comment every minute
-    statusCode: 429
+    statusCode: 429,
+    skip: res => !res.authenticated
 });
 
 module.exports = {postLimiter, commentLimiter};
