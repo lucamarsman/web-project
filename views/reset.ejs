@@ -42,6 +42,8 @@
                 .then(response => {
                     if (response.status === 409) { // Handle unauthorized response
                         showPopup("No account exists with that email")
+                    }else if(response.status === 429){
+                        showPopup("You're submitting too fast. Please wait a moment.")
                     } else if (response.ok) {
                         showPopup("A reset email has been sent to your account")
                     }

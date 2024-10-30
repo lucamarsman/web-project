@@ -1,30 +1,28 @@
 const rateLimit = require('express-rate-limit');
 
 const postLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 15 minutes
-    max: 1, // Limit each IP to 1 post every 5 minutes
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 1, 
     statusCode: 429
 });
 
 const commentLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 15 minutes
-    max: 1, // Limit each IP to 1 comment every minute
+    windowMs: 30 * 1000, // 30 seconds
+    max: 1,
     statusCode: 429,
-    skip: (req,res) => !res.authenticated
+    skip: (req, res) => !res.authenticated
 });
 
 const registerLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 15 minutes
-    max: 1, // Limit each IP to 1 register every minute
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 1,
     statusCode: 429,
-    skip: (req,res) => !res.authenticated
 });
 
 const resetLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 15 minutes
-    max: 1, // Limit each IP to 1 register every minute
-    statusCode: 429,
-    skip: (req,res) => !res.authenticated
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 1,
+    statusCode: 429
 });
 
 module.exports = {postLimiter, commentLimiter, registerLimiter, resetLimiter};

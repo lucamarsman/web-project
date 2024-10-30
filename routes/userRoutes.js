@@ -3,6 +3,8 @@ const router = express.Router(); // Create express router
 const userController = require('../controllers/userController.js'); // Import userController.js
 const {validateToken} = require('../Auth'); // Import validateToken function from Auth.js
 const multer = require('multer'); // Import multer for profile picture uploads
+const {resetLimiter, registerLimiter} = require('../rateLimiter');
+const res = require('express/lib/response.js');
 //Multer configuration for profile picture storage
 const storage = multer.diskStorage({
     destination: function(req, file, cb) { // Set destination for profile picture uploads
@@ -17,11 +19,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // User authentication and registration routes
-router.post('/register', validateToken, userController.register); // Register a new user
+router.post('/register', registerLimiter, validateToken, userController.register); // Register a new user
 router.get('/register/verify', validateToken, userController.registerConfirm); // Register a new user
 router.post("/login", userController.login); // Login a user
 router.get('/logout', userController.logout); // Logout a user
-router.post('/reset', userController.getResetLink); // Send password reset link
+router.post('/reset', resetLimiter, userController.getResetLink); // Send password reset link
 router.get('/password-reset', userController.getPasswordReset) // Get password reset page
 router.post('/reset/:reset_link', userController.resetPassword); // Reset password
 
