@@ -2,45 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title> Index </title>
+  <title>Index</title>
   <link rel="stylesheet" type="text/css" href="/public/assets/homepage.css" title="style" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
 
-  <div id = "main">
-    <header id = "main-nav">
-      <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/logo.png"></a>
+  <div class="wrapper">
+    <header id="main-nav">
+      <img src="/public/assets/images/logo.png" id="logo">
       <div class="search-nav">
-        <form action="" id = "searchForm" method = "POST">
-          <input type="text" id = "search-bar" placeholder="Search.." name="search_val">
-          <button type="submit" id = "search-button" name = 'action' value = 'search'>Go</button>
-          <button id = "create-post" type = 'button' name = 'action' value = 'post'  onclick="window.location.href='/new-post'">New Post</button>
+        <form action="" id="searchForm" method="POST">
+          <input type="text" id="search-bar" placeholder="Search.." name="search_val">
+          <button type="submit" id="search-button" name="action" value="search">Go</button>
+          <button id="create-post" type="button" name="action" value="post" onclick="window.location.href='/new-post'">New Post</button>
         </form>
       </div>
       <div id="button-container">
-        <button id = "btn1" onclick="window.location.href='/profile'">Profile</button>
-        <button id = "btn2" onclick="window.location.href='/user/logout'">Logout</button>
+        <button id="btn1" onclick="window.location.href='/profile'">Profile</button>
+        <button id="btn2" onclick="window.location.href='/user/logout'">Log Out</button>
       </div>
     </header>
-  </div>
-  
-  <div id="login-pop">
-    
-    
-      
-  </div>
-  
-  <div id="postsContainer"></div>
-  
+
+    <main id="main-content">
+      <div id="login-pop"></div>
+      <div id="postsContainer"></div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
+    </footer>
   </div>
 
-  <footer>
-    
-  </footer>
-
-  <script src="/public/loadPost.js">
-    
-  </script>
+  <script src="public/loadPost.js"></script>
 </body>
 </html>
