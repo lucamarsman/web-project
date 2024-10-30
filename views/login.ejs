@@ -8,13 +8,13 @@
 </head>
 <body>
     <div id ="form">
-        <form name = "login" id="log" action="/user/login" method="POST">
+        <form name = "login" method="POST" id="loginForm">
             <label for="username"><b>Username</b></label>
-                <input type="text" placeholder="Enter Email" name="username" required> 
+                <input type="text" placeholder="Enter Email" name="username" id="email" required> 
             <br>
             <br>
             <label for="password" id="pass"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="password" required>  
+                <input type="password" placeholder="Enter Password" name="password" id="password" required>  
             <br>
             <button type="submit" id="sub">Login</button>
                 <label>
@@ -25,6 +25,56 @@
 
 
         </form>
+
+        <div id="errorPopup" style="display: none;">
+            <p id="errorMessage"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        
+        <script>
+            document.getElementById("loginForm").addEventListener("submit", async function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+        
+                const postUrl = '/user/login';
+                const postData = {
+                    username: email,
+                    password: password
+                };
+            
+                fetch(postUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                })
+                .then(response => {
+                    if (response.status === 401) { // Handle unauthorized response
+                        showPopup("Incorrect Password")
+                    } else if (response.status == 404) {
+                        showPopup("Account doesn't exist")
+                    } else if(response.ok){
+                        window.location.href = '/'
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            });
+        
+            // Function to show the popup
+            function showPopup(message) {
+                document.getElementById("errorMessage").textContent = message;
+                document.getElementById("errorPopup").style.display = "block";
+            }
+        
+            // Function to close the popup
+            function closePopup() {
+                document.getElementById("errorPopup").style.display = "none";
+            }
+        </script>
     </div>
 </body>
 </html>

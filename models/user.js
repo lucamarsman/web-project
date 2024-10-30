@@ -281,15 +281,14 @@ class User { // User class
     }
 
     static async login(req, res) { // Login user
-        await queryDb('USE forumDB');
         const rows = await queryDb('SELECT email FROM Users WHERE email = ?', [req.body.username]); // Check if the email is registered
-
+        console.log(req.body)
         if (rows.length > 0) { // If the email is registered
             const result = await queryDb('SELECT password FROM Users WHERE email = ?', [req.body.username]); // Get the password from the database
             const passwordResult = await bcrypt.compare(req.body.password, result[0].password); // Compare the password from the database with the password from the request body
             const userIdResult = await queryDb('SELECT user_id FROM Users WHERE email = ?', [req.body.username]); // Get the user id from the database
             const uid = userIdResult[0].user_id; // Set the user id
-
+            
             if (passwordResult) { // If the password is correct
                 console.log("Password matches!");
                 const payload_access = { // Create payload for access token
@@ -313,7 +312,7 @@ class User { // User class
                     httpOnly: true
                 });
                 res.authenticated = true; // Set authenticated to true
-                res.redirect('/'); // Redirect to home page
+                res.status(200).send("Login Successful"); // Redirect to home page
             } else { // If the password is incorrect
                 res.status(401).send("Incorrect password."); // Send 401 back to client
             }
