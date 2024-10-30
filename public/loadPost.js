@@ -71,6 +71,7 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
 
                     const postUser = document.createElement("p") // Create post user element and set its attributes
                     postUser.textContent = post.username
+                    console.log(post.username)
                     postUser.classList.add("poster")
                     postUser.addEventListener("click", function () { // Add event listener to post username element
                       window.location.href = `view/${post.username}/profile`; // Redirect to user's profile page

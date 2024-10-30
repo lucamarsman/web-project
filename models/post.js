@@ -66,8 +66,21 @@ class Post { // post model
             const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
             const offset = (page - 1) * limit; // calculate offset
 
-            const posts = await queryDb('SELECT * FROM Posts ORDER BY post_id DESC LIMIT ? OFFSET ?', [limit, offset]); // fetch posts from db via limit and offset
-            res.json(posts); // return posts as JSON
+            const posts = await queryDb(`
+                SELECT 
+                    p.post_id,
+                    p.title,
+                    p.content,
+                    p.timestamp,
+                    p.user_id,
+                    p.likeCount,
+                    u.username
+                FROM posts p
+                JOIN Users u ON p.user_id = u.user_id   
+                ORDER BY p.timestamp DESC
+                LIMIT ? OFFSET ?
+            `, [limit, offset]);
+            res.json(posts)
         }
     }
 
