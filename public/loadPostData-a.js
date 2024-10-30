@@ -47,21 +47,16 @@ function loadPosts(url) { // Function that loads posts to front page
                     const postTitle = document.createElement("h1");
                     postTitle.textContent = post.title;
 
-                    const postUser = document.createElement("p")
-                    postUser.textContent = post.username
-                    postUser.classList.add("poster")
-
                     const postContent = document.createElement("p");
                     postContent.textContent = post.content;
                     const postTimestamp = document.createElement("p");
                     postTimestamp.textContent = post.timestamp;
 
                     postHeader.appendChild(postTitle)
-                    postHeader.appendChild(postUser)
+                    postHeader.appendChild(postTimestamp)
                     
                     postMain.appendChild(postHeader);
                     postMain.appendChild(postContent);
-                    postMain.appendChild(postTimestamp);
                     postElement.appendChild(postMain);
 
                     postsContainer.appendChild(postElement);
