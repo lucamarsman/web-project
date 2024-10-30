@@ -27,6 +27,7 @@ router.post('/reset/:reset_link', userController.resetPassword); // Reset passwo
 
 // User profile management and fetch routes
 router.get('/profile/profile-image', userController.getUserImage); // Get user profile image
+router.get('/poster-image/:posterId', userController.getPosterImage); // Get user profile image
 router.post('/profile/save', userController.saveProfile); // Save user profile bio
 router.get('/profile/load-bio', userController.getProfileBio); // Get user profile bio
 router.post('/profile/upload-profile-image', upload.single('profilePic'), userController.uploadImage); // Upload user profile image

@@ -36,6 +36,15 @@ exports.getUserImage= async (req, res) => { // Get user profile image
     }
 };
 
+exports.getPosterImage= async (req, res) => { // Get user profile image
+    try {
+        User.getPosterImage(req, res);
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
+    }
+};
+
 exports.saveProfile= async (req, res) => { // Save user profile bio
     try {
         User.saveProfile(req, res);

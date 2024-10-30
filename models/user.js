@@ -161,6 +161,22 @@ class User { // User class
         res.json(imageURL) // Send user profile image to client
     }
 
+    static async getPosterImage(req, res) { // Get user profile image
+        try {
+            const userId = req.params.posterId;
+            const result = await queryDb("SELECT image_path FROM ProfilePictures WHERE user_id = ?", [userId]);
+        
+            if (result.length > 0) {
+              const imageURL = result[0].image_path; // Assuming one result per user
+              res.json({ image_url: imageURL }); // Send as JSON object with "image_url" key
+            } else {
+              res.status(404).json({ error: "Image not found" });
+            }
+          } catch (error) {
+            res.status(500).json({ error: "Server error" });
+          }
+    }
+
     static async saveProfile(req, res) { // Save user profile bio
         let decodedToken = jwt_decode(req.cookies['refresh-token']) // Decode JWT
         const uid = decodedToken.user.userid; // Get user id from decoded token

@@ -185,9 +185,27 @@ body {
     margin: 0;
 }
 
+.post-header{
+    display:flex;
+    flex-direction: column;
+    gap:.5em;
+}
+
 .poster {
     color: #007bff;
     font-style: italic;
+}
+
+.poster-image{
+    width:8%;
+    height:8%;
+    border-radius:100px;
+}
+
+.poster-content{
+    display:flex;
+    align-items: center;
+    gap:2%;
 }
 
 /* Updated Interaction Icons */

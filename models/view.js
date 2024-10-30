@@ -58,6 +58,26 @@ class View { // view model
             if (profileId.length > 0 && profileId[0].user_id == uid) {
                 return res.redirect('/profile'); // redirect to your profile page
             }
+
+            try { // try to fetch user's profile
+                const dateResult = await queryDb('SELECT registration_date FROM Users WHERE username = ?', [username]); // fetch registration date from database using username
+                const bioResult = await queryDb('SELECT bio FROM Users WHERE username = ?', [username]); // fetch bio from database using username
+    
+                // Check if dateResult and bioResult have data before attempting to render
+                if (dateResult.length > 0 && bioResult.length > 0) {
+                    return res.render('viewProfile-a.ejs', { // render profile page with username, bio, and registration date
+                        username: username,
+                        dateJoined: dateResult[0].registration_date,
+                        bioData: bioResult[0].bio  
+                    });
+                } else { // Handle user not found or missing data
+                    // Handle user not found or missing data
+                    return res.status(404).send('User not found or incomplete profile'); // return 404 status code
+                }
+            } catch (error) { // catch error
+                console.error(error); // log error
+                return res.status(500).send('An error occurred'); // return 500 status code
+            }
         }
 
         // if user is not logged in

@@ -69,13 +69,26 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     const postTitle = document.createElement("h1"); // Create post title element and set its attributes
                     postTitle.textContent = post.title;
 
+                    const postUserImg = document.createElement("img")
+                    postUserImg.classList.add("poster-image")
+
+                    fetch(`/user/poster-image/${post.user_id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                      postUserImg.setAttribute("src", data.image_url)
+                    })
+                    
                     const postUser = document.createElement("p") // Create post user element and set its attributes
                     postUser.textContent = post.username
-                    console.log(post.username)
                     postUser.classList.add("poster")
                     postUser.addEventListener("click", function () { // Add event listener to post username element
                       window.location.href = `view/${post.username}/profile`; // Redirect to user's profile page
                     })
+
+                    const posterContent = document.createElement("div")
+                    posterContent.classList.add("poster-content")
+                    posterContent.appendChild(postUserImg)
+                    posterContent.appendChild(postUser)
 
                     const postContent = document.createElement("p"); // Create post content element and set its attributes
                     postContent.textContent = post.content;
@@ -83,11 +96,11 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     postTimestamp.textContent = post.timestamp;
 
                     postHeader.appendChild(postTitle) // Append post title and post user to post header element
-                    postHeader.appendChild(postUser)
+                    postHeader.appendChild(posterContent)
                     
                     postMain.appendChild(postHeader); // Append post header, post content, and post timestamp to post main element
                     postMain.appendChild(postContent);
-                    postMain.appendChild(postTimestamp);
+                    postHeader.appendChild(postTimestamp);
                     postElement.appendChild(postMain); // Append post main and post interact to post element
                     postElement.appendChild(postInteract);
 
@@ -118,6 +131,23 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                 loadingIndicator.remove();
             }
         });
+}
+
+async function fetchAndDisplayImage(posterId) {
+  try {
+    const response = await fetch(`/user/poster-image/${posterId}`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch image");
+    }
+    
+    const data = await response.json();
+    const imageUrl = data.image_url;
+    return imageUrl;
+    
+  } catch (error) {
+    console.error('Error fetching image:', error);
+  }
 }
 
 function performSearch() { // Function that loads post based on search input

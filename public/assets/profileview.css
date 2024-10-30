@@ -126,6 +126,33 @@ button:hover {
     font-style: italic;
 }
 
+/* Post Content Truncation with Fade-Out Effect */
+#post-data {
+    position: relative;
+    max-height: 400px; /* Set the maximum height to show truncated text */
+    overflow: hidden;
+    text-align: left;
+    padding-right: 10px;
+}
+
+#post-data > p {
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+#post-data::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px; /* Height of the fade effect */
+    background: linear-gradient(to bottom, rgba(227, 228, 241, 0), #e3e4f1); /* Fade color should match .post-item */
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
     #profile-top {

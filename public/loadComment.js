@@ -97,7 +97,6 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
                 window.location.href = `/view/${user.username}/profile`; // Redirect to the user's profile page
             });
 
-
             const userImage = document.createElement("img"); // Create an <img> tag for the user's profile picture
             if(user.image_path == ""){ // If the user has no profile picture
                 userImage.setAttribute("src", "public/assets/images/default-profile.png"); // Set the default profile picture
