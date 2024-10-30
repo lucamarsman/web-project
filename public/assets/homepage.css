@@ -111,6 +111,7 @@ body {
     width: 65%;
     margin: 20px auto;
     margin-top:0;
+    margin-bottom:0;
     background: rgba( 255, 255, 255, 0.35 );
     box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
     backdrop-filter: blur( 1.5px );
@@ -236,4 +237,15 @@ body {
     background-repeat: no-repeat;
     background-size: contain;
     margin-left: auto; /* Push to the right */
+}
+
+footer{
+    min-height:95.2px;
+    display: flex;
+    justify-content: space-between; /* Align items to the edges */
+    align-items: center; /* Vertically center the items */
+    background-color: #a16dc1;
+    color: white;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
 }
