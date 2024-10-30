@@ -221,6 +221,10 @@ button:hover {
 
 }
 
+#post-data{
+    overflow-wrap: anywhere;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     #login-pop, #commentsContainer {
