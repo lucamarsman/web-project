@@ -8,83 +8,77 @@
 </head>
 <body>
 
-<div id = "main">
-  <header id = "main-nav">
-    <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/logo.png"></a>
-    <div id="button-container">
-      <button id = "btn1" onclick="window.location.href='/profile'">Profile</button>
-      <button id = "btn2" onclick="window.location.href='/user/logout'">Logout</button>
-    </div>
-  </header>
-</div>
-
-<div id="login-pop">
-  <div id="post-area">
-    <form action="/posts/new-post" id = "form" method = "POST">
-      <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50">
-    <br>
-      <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000"></textarea>
-    <br>
-      <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
-      <div id="inline-toast"></div>
-  </form>
+<div class="wrapper">
+  <div id = "main">
+    <header id = "main-nav">
+      <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/logo.png"></a>
+      <div id="button-container">
+        <button id = "btn1" onclick="window.location.href='/profile'">Profile</button>
+        <button id = "btn2" onclick="window.location.href='/user/logout'">Logout</button>
+      </div>
+    </header>
   </div>
 
-  <script>
-    const textarea = document.getElementById('post-body'); // The textarea element
+  <div id="login-pop">
+    <div id="post-area">
+      <form action="/posts/new-post" id = "form" method = "POST">
+        <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50">
+      <br>
+        <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000"></textarea>
+      <br>
+        <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
+        <div id="inline-toast"></div>
+    </form>
+    </div>
 
-    textarea.addEventListener('input', function () { // Input event listener that resizes the etxtarea vertically based on the content
-        this.style.height = 'auto'; // Reset the height
-        this.style.height = (this.scrollHeight) + 'px'; // Set the height
-    });
+    </div>
+  
 
-    document.getElementById('form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the default form submission
+  <footer>
+    <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
+  </footer>
 
-    const form = event.target;
-    const formData = new FormData(form);
+</div>
 
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => {
-        if (response.status === 429) {
-            // Handle rate limiting
-            document.getElementById('inline-toast').textContent = "You're submitting too fast. Please wait a moment.";
-            document.getElementById('inline-toast').style.display = 'block';
-        } else if (!response.ok) {
-            // Handle other HTTP errors
-            throw new Error(`Network response was not ok, status: ${response.status}`);
-        } else if (response.redirected) {
-            window.location.href = response.url; // Redirect to the new location
-        } else {
-            console.log('Post created, but no redirection occurred.');
-            // Optionally handle the case where the post is created but no redirection is needed
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+<script>
+  const textarea = document.getElementById('post-body'); // The textarea element
+
+  textarea.addEventListener('input', function () { // Input event listener that resizes the text vertically based on the content
+      this.style.height = 'auto'; // Reset the height
+      this.style.height = (this.scrollHeight) + 'px'; // Set the height
+  });
+
+  document.getElementById('form').addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent the default form submission
+
+  const form = event.target;
+  const formData = new FormData(form);
+
+  fetch(form.action, {
+      method: 'POST',
+      body: formData,
+  })
+  .then(response => {
+      if (response.status === 429) {
+          // Handle rate limiting
+          document.getElementById('inline-toast').textContent = "You're submitting too fast. Please wait a moment.";
+          document.getElementById('inline-toast').style.display = 'block';
+      } else if (!response.ok) {
+          // Handle other HTTP errors
+          throw new Error(`Network response was not ok, status: ${response.status}`);
+      } else if (response.redirected) {
+          window.location.href = response.url; // Redirect to the new location
+      } else {
+          console.log('Post created, but no redirection occurred.');
+          // Optionally handle the case where the post is created but no redirection is needed
+      }
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
 });
 
-  </script>
-
-
-
-
-
-
-
-
-
-  </div>
-</div>
-
-<footer>
-  <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
-</footer>
-
+</script>
 
 </body>
 </html>

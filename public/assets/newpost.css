@@ -59,15 +59,27 @@ button:hover {
 /* Post Area Styling */
 #login-pop {
     max-width: 800px;
-    margin: 30px auto;
     padding: 15px;
     background-color: #e3e4f1;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    padding: 20px;
+    display:flex;
+    justify-content: center;
+    margin-left:25%;
+    margin-right:25%;
+    margin-top:1.2em;
+    margin-bottom:1.2em;
+    background: rgba( 255, 255, 255, 0.35 );
+    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 1.5px );
 }
+
 
 #post-area {
     text-align: center;
+    width:100%;
 }
 
 #form {
@@ -103,6 +115,12 @@ footer {
     display:flex;
     align-items: center;
     justify-content: center;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
 }
 
 /* Media Queries for Responsive Design */

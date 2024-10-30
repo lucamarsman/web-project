@@ -165,7 +165,7 @@ body {
     left: 0;
     width: 100%;
     height: 30px; 
-    background: linear-gradient(to bottom, rgba(227, 228, 241, 0), #e3e4f1); /* Fade color should match .post-item */
+    background: linear-gradient(to bottom, rgba(227, 228, 241, 0), #e3e4f1);
 }
 
 .read-more {
