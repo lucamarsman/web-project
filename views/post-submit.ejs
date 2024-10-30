@@ -22,9 +22,9 @@
   <div id="login-pop">
     <div id="post-area">
       <form action="/posts/new-post" id = "form" method = "POST">
-        <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50">
+        <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50" required>
       <br>
-        <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000"></textarea>
+        <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000" required></textarea>
       <br>
         <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
         <div id="inline-toast"></div>
