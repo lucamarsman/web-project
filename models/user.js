@@ -274,10 +274,9 @@ class User { // User class
 
             res.status(200).send('A reset link has been sent to the email associated with this account'); // Send 200 back to client
 
+        }else{
+            res.status(409).send('No account exists with that email')
         }
-
-
-
 
     }
 

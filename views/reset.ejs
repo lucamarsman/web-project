@@ -9,14 +9,56 @@
 <body>
     
     <div id ="form">
-        <form name = "name" action = "/user/reset" method="POST">
+        <form name = "name" action = "/user/reset" method="POST" id="resetForm">
             <label for="email"><b>Email</b></label>
                 <input type="email" placeholder="Enter Email" name="email" id="email" required> 
             <br>
             <button type="submit" id="sub">Reset Password</button>
         </form>
 
+        <div id="errorPopup" style="display: none;">
+            <p id="errorMessage"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+        
+        <script>
+            document.getElementById("resetForm").addEventListener("submit", async function(event) {
+                event.preventDefault(); // Prevent the default form submission
 
+                const email = document.getElementById("email").value;
+        
+                const postUrl = '/user/reset';
+                const postData = {
+                    email: email,
+                };
+            
+                fetch(postUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                })
+                .then(response => {
+                    if (response.status === 409) { // Handle unauthorized response
+                        showPopup("No account exists with that email")
+                    } else if (response.ok) {
+                        showPopup("A reset email has been sent to your account")
+                    }
+                })
+            });
+        
+            // Function to show the popup
+            function showPopup(message) {
+                document.getElementById("errorMessage").textContent = message;
+                document.getElementById("errorPopup").style.display = "block";
+            }
+        
+            // Function to close the popup
+            function closePopup() {
+                document.getElementById("errorPopup").style.display = "none";
+            }
+        </script>
 
 </body>
 </html>
