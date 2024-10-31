@@ -128,7 +128,8 @@ class Post { // post model
             // Fetch posts from db via search query, limit, and offset. This version includes the like and save status of each post for the authenticated user
             const posts = await queryDb(`
                 SELECT 
-                    Posts.*, 
+                    Posts.*,
+                    u.username, 
                     EXISTS (
                         SELECT 1 
                         FROM likes 
@@ -140,6 +141,7 @@ class Post { // post model
                         WHERE saves.post_id = Posts.post_id AND saves.user_id = ?
                     ) AS saved
                 FROM Posts 
+                JOIN Users u ON Posts.user_id = u.user_id
                 WHERE content LIKE ? OR title LIKE ? 
                 ORDER BY post_id DESC 
                 LIMIT ? OFFSET ?`, 
@@ -152,7 +154,17 @@ class Post { // post model
             const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
             const offset = (page - 1) * limit; // calculate offset
     
-            const posts = await queryDb('SELECT * FROM Posts WHERE content LIKE ? OR title LIKE ? ORDER BY post_id DESC LIMIT ? OFFSET ?', [searchVal, searchVal, limit, offset]); // fetch posts from db via search query, limit, and offset
+            const posts = await queryDb(`
+                SELECT 
+                    Posts.*,
+                    u.username
+                FROM Posts 
+                JOIN Users u ON Posts.user_id = u.user_id
+                WHERE content LIKE ? OR title LIKE ? 
+                ORDER BY post_id DESC 
+                LIMIT ? OFFSET ?`, 
+                [searchVal, searchVal, limit, offset]
+            );
             res.json(posts); // return posts as JSON
         }
     }
