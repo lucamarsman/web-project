@@ -53,9 +53,13 @@ class User { // User class
     static async register(req, res) {
         let email = req.body.email;
         let password = req.body.password;
+        let passwordConfirm = req.body.passwordConfirm;
         let username = req.body.username;
         let accountExists = await this.findByEmailOrUsername(email,username);
         if(!accountExists){ // Check if account already exists
+            if(password != passwordConfirm){
+                return res.status(401).send("Passwords do not match");
+            }
                 let register_link = crypto.randomBytes(20).toString('hex'); // Generate random bytes for reset link
                 //const register_token = generateRegisterToken(req.body, register_link); // Generate register token using user id and reset link
                 let register_expiry = new Date(new Date().getTime() + 5 * 60 * 1000); // Set register token expiry to 5 minutes
@@ -100,11 +104,11 @@ class User { // User class
                     }
                 });
     
-                res.status(200).send('A confirmation email has been sent to the email submitted'); // Send 200 back to client
+                return res.status(200).send('A confirmation email has been sent to the email submitted'); // Send 200 back to client
             
 
         }else{ // If account already exists
-            res.status(409).json({ success: false, message: "Account already exists" });
+           return res.status(409).json({ success: false, message: "Account already exists" });
         }
     }
 
