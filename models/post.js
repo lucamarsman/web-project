@@ -142,10 +142,10 @@ class Post { // post model
                     ) AS saved
                 FROM Posts 
                 JOIN Users u ON Posts.user_id = u.user_id
-                WHERE content LIKE ? OR title LIKE ? 
+                WHERE content LIKE ? OR title LIKE ? OR u.username LIKE ?
                 ORDER BY post_id DESC 
                 LIMIT ? OFFSET ?`, 
-                [userId, userId, searchVal, searchVal, limit, offset]
+                [userId, userId, searchVal, searchVal, searchVal, limit, offset]
             );
             res.json(posts); // return posts as JSON
         }else{ // if user is not authenticated
@@ -160,10 +160,10 @@ class Post { // post model
                     u.username
                 FROM Posts 
                 JOIN Users u ON Posts.user_id = u.user_id
-                WHERE content LIKE ? OR title LIKE ? 
+                WHERE content LIKE ? OR title LIKE ? OR u.username LIKE ?
                 ORDER BY post_id DESC 
                 LIMIT ? OFFSET ?`, 
-                [searchVal, searchVal, limit, offset]
+                [searchVal, searchVal, searchVal, limit, offset]
             );
             res.json(posts); // return posts as JSON
         }
