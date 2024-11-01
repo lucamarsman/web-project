@@ -21,7 +21,7 @@
 
   <div id="login-pop">
     <div id="post-area">
-      <form action="/posts/new-post" id = "form" method = "POST">
+      <form action="/posts/new-post" id = "form" method = "POST" enctype="multipart/form-data">
         <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50" required>
       <br>
         <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000" required></textarea>
@@ -84,7 +84,7 @@
 
   fetch(form.action, {
       method: 'POST',
-      body: formData,
+      body: formData
   })
   .then(response => {
       if (response.status === 429) {

@@ -4,7 +4,7 @@ const jwt_decode = require("jwt-decode"); // import jwt_decode
 class Post { // post model
     static async createPost(req, res) { // create post
         if(res.authenticated){ // if user is authenticated
-            console.log(req.body)
+            console.log(req.file.path)
             const post_payload = { // create post payload
                 "title": req.body.post_title, // get post title from request body
                 "body": req.body.post_body // get post body from request body
@@ -12,7 +12,10 @@ class Post { // post model
 
             let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
             const uid = decodedToken.user.userid; // get user ID from decoded JWT token
-            const result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]); // insert post into database
+            let result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]); // insert post into database
+            if(req.file){
+                result = await queryDb('INSERT INTO Posts (title, content, media_path, user_id) VALUES (?,?,?,?)', [post_payload.title, post_payload.body, req.file.path, uid]); // insert post into database with media
+            }
             const postId = result.insertId // get post ID of newly created post
 
             res.redirect(`/post/${postId}`); // redirect to newly created post page
