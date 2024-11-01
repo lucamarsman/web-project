@@ -127,6 +127,10 @@ footer {
     min-height: 100vh; 
 }
 
+#uploadedVideo, #uploadedImg{
+    display:none;
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
     #form {

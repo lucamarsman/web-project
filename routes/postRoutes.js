@@ -6,7 +6,7 @@ const {postLimiter} = require('../rateLimiter');
 const multer = require('multer');
 const upload = multer();
 
-router.post('/new-post', postLimiter, validateToken, upload.none(), PostController.createPost); // Create new post
+router.post('/new-post', postLimiter, validateToken, upload.single('mediaUpload'), PostController.createPost); // Create new post
 router.get("/fetch-posts", validateToken, PostController.fetchPost); // Fetch Posts
 router.get("/post-history/:username", PostController.fetchPostHistory); // Fetch user's Post History
 

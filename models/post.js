@@ -4,6 +4,7 @@ const jwt_decode = require("jwt-decode"); // import jwt_decode
 class Post { // post model
     static async createPost(req, res) { // create post
         if(res.authenticated){ // if user is authenticated
+            console.log(req.body)
             const post_payload = { // create post payload
                 "title": req.body.post_title, // get post title from request body
                 "body": req.body.post_body // get post body from request body

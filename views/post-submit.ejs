@@ -26,6 +26,11 @@
       <br>
         <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000" required></textarea>
       <br>
+      <input type="file" accept="image/*, video/*" id="mediaUpload" name="mediaUpload">
+      <br>
+      <img id="uploadedImg">
+      <video id="uploadedVideo" controls></video>
+      <br>
         <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
         <div id="inline-toast"></div>
     </form>
@@ -48,6 +53,26 @@
       this.style.height = (this.scrollHeight) + 'px'; // Set the height
   });
 
+  let uploadedMediaFile = null;
+
+  document.getElementById("mediaUpload").addEventListener('change', () => {
+  const mediaInput = document.getElementById('mediaUpload');
+  if (mediaInput.files.length > 0) {
+    uploadedMediaFile = mediaInput.files[0]; 
+    const mediaUrl = URL.createObjectURL(uploadedMediaFile); 
+    if (uploadedMediaFile.type.startsWith('image/')) {
+      document.getElementById("uploadedImg").src = mediaUrl;
+      document.getElementById("uploadedImg").style.display = "block";
+      document.getElementById("uploadedVideo").style.display = "none";
+    } else if (uploadedMediaFile.type.startsWith('video/')) {
+      document.getElementById("uploadedVideo").src = mediaUrl;
+      document.getElementById("uploadedVideo").style.display = "block"; 
+      document.getElementById("uploadedImg").style.display = "none";
+    }
+  }
+});
+
+//TODO on submit add uploaded media to form data to handle on back end
   document.getElementById('form').addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent the default form submission
 
