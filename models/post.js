@@ -12,9 +12,11 @@ class Post { // post model
 
             let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
             const uid = decodedToken.user.userid; // get user ID from decoded JWT token
-            let result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]); // insert post into database
+            let result;
             if(req.file){
                 result = await queryDb('INSERT INTO Posts (title, content, media_path, user_id) VALUES (?,?,?,?)', [post_payload.title, post_payload.body, req.file.path, uid]); // insert post into database with media
+            }else{
+                result = await queryDb('INSERT INTO Posts (title, content, user_id) VALUES (?,?,?)', [post_payload.title, post_payload.body, uid]); // insert post into database
             }
             const postId = result.insertId // get post ID of newly created post
 
