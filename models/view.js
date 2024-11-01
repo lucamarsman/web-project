@@ -103,6 +103,7 @@ class View { // view model
         }
     }
 
+    //TODO: Get corresponding media upload url from backend and include in repsonse
     static async viewPost(req, res) { // view a post
         const postId = req.params.postId; // get post ID from request parameters
 
