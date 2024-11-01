@@ -129,6 +129,9 @@ footer {
 
 #uploadedVideo, #uploadedImg{
     display:none;
+    max-width:100%;
+    max-height:100%;
+    margin-top:2%;
 }
 
 /* Media Queries for Responsive Design */
