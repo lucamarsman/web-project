@@ -144,10 +144,15 @@ body {
 
 #post-data {
     position: relative;
-    max-height: 400px;
+    max-height: 700px;
     overflow: hidden;
     text-align: left;
     padding-right: 10px;
+}
+
+.post-media{
+    max-height:100%;
+    max-width:100%;
 }
 
 #post-data > p {

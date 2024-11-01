@@ -85,6 +85,8 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                       window.location.href = `view/${post.username}/profile`; // Redirect to user's profile page
                     })
 
+                    let uploadedMedia = null;
+
                     const posterContent = document.createElement("div")
                     posterContent.classList.add("poster-content")
                     posterContent.appendChild(postUserImg)
@@ -99,6 +101,18 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     postHeader.appendChild(posterContent)
                     
                     postMain.appendChild(postHeader); // Append post header, post content, and post timestamp to post main element
+                    if(post.media_path != null){
+                      if(post.media_path.match(/\.(jpg|jpeg|png|gif|svg)$/i)){
+                        uploadedMedia = document.createElement("img")
+                        uploadedMedia.src = post.media_path;
+                      }else if(post.media_path.match(/[^/]+(mp4|mov|avi|wmv|webm|mkv)$/)){
+                        uploadedMedia = document.createElement("video")
+                        uploadedMedia.classList.add("post-media")
+                        uploadedMedia.src = post.media_path;
+                        uploadedMedia.setAttribute("controls", "")
+                      }
+                      postMain.appendChild(uploadedMedia)
+                    }
                     postMain.appendChild(postContent);
                     postHeader.appendChild(postTimestamp);
                     postElement.appendChild(postMain); // Append post main and post interact to post element
