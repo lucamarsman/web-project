@@ -75,7 +75,7 @@
 
         if(data.mediaUrl != null){
           if(data.mediaUrl.match(/\.(jpg|jpeg|png|gif|svg)$/i)){
-          img.getElementById("uploadedImg").setAttribute("src", `${baseUrl}${data.mediaUrl}`)
+          img.setAttribute("src", `${baseUrl}${data.mediaUrl}`)
           img.style.display = "";
         }else if(data.mediaUrl.match(/[^/]+(mp4|mov|avi|wmv|webm|mkv)$/)){
           video.setAttribute("src", `${baseUrl}${data.mediaUrl}`)
