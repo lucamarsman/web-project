@@ -103,33 +103,21 @@ class View { // view model
         }
     }
 
-    //TODO: Get corresponding media upload url from backend and include in repsonse
+    //TODO: Get corresponding media upload url from backend and include in response
     static async viewPost(req, res) { // view a post
         const postId = req.params.postId; // get post ID from request parameters
-
         const post = await queryDb('SELECT * FROM Posts WHERE post_id = ?', [postId]); // fetch post from database using post ID
         const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ?', [postId]); // fetch comments from database using post ID
-
         if (post && post.length > 0) { // if post exists
-            // Render the post
-            if(res.authenticated){ // if user is authenticated
-                res.render('post-view-a.ejs', { // render post page with post title, body, timestamp, and comments
-                    title: post[0].title,
-                    body: post[0].content,
-                    timestamp: post[0].timestamp,
-                    comments: comments
-                });
-            }else{ // if user is not authenticated
-                res.render('post-view.ejs', { // render post page with post title, body, timestamp, and comments
-                    title: post[0].title,
-                    body: post[0].content,
-                    timestamp: post[0].timestamp,
-                    comments: comments
-                });
-            }
-            
+            res.json({
+                title: post[0].title,
+                mediaUrl: post[0].media_path,
+                body: post[0].content,
+                timestamp: post[0].timestamp,
+                comments: comments
+            })
         } else { // if post does not exist
-            res.status(404).send('Post not found'); // return 404 status code
+            res.status(404).json({ success: false, message: 'Post not found' });
         }
     }
 

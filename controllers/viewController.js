@@ -14,12 +14,15 @@ exports.renderRegister = async (req, res) => { // render register page
 };
 
 exports.renderHomepage = async (req, res) => { // render homepage
-    if(res.authenticated){
-        res.render('index_a.ejs');
-    }else{
-        res.render('index.ejs');
+    try{
+        if(res.authenticated){
+            res.render('index_a.ejs');
+        }else{
+            res.render('index.ejs');
+        }
+    }catch(error){
+        console.log(error)
     }
-
 };
 
 exports.renderPostSubmit = async (req, res) => { // render post submit page
@@ -57,11 +60,18 @@ exports.viewUser= async (req, res) => { // view user
 };
 
 exports.viewPost= async (req, res) => { // view post
-    try {
-        View.viewPost(req, res);
-    } catch (error) {
-        console.log("Something went wrong", error);
-        // Handle the error appropriately
+    if(res.authenticated){
+        res.render('post-view-a.ejs');
+    }else{
+        res.render('post-view.ejs');
+    }
+};
+
+exports.getPostData= async (req, res) => { // view post
+    try{
+        View.viewPost(req, res)
+    }catch(error){
+        console.log(error)
     }
 };
 

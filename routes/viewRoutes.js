@@ -23,6 +23,8 @@ router.get("/view/:username/profile", validateToken, ViewController.viewUser); /
 
 router.get('/post/:postId', validateToken, ViewController.viewPost); // View Specific Post
 
+router.get('/post-data/:postId', validateToken, ViewController.getPostData);
+
 router.get(`/profile/:username/profile-image`, validateToken, ViewController.getUserImage); // Get user profile image
 
 

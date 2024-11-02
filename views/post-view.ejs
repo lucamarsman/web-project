@@ -21,9 +21,11 @@
 <div id="login-pop">
 
     <div id="post-data">
-    <h1 id="title"><%= title %></h1>
-    <p id="content"><%= body %></p>
-    <div id ="direct-reply"><p id="timestamp"><%= timestamp %></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
+    <h1 id="title"></h1>
+    <img id="uploadedImg">
+    <video id ="uploadedVideo" controls></video>
+    <p id="content"></p>
+    <div id ="direct-reply"><p id="timestamp"></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
     </div>
 
     <div id = "new-comment">
@@ -53,6 +55,34 @@
     }
 
     
+  })
+
+  document.addEventListener("DOMContentLoaded", () => {
+    let mediaUrl;
+    fetch(`/post-data/${postId}`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("title").innerHTML = data.title
+        document.getElementById("content").innerHTML = data.body
+        document.getElementById("timestamp").innerHTML = data.timestamp
+
+        const video = document.getElementById("uploadedVideo")
+        const img = document.getElementById("uploadedImg")
+        video.style.display = "none"
+        img.style.display = "none"
+
+        const baseUrl = 'http://localhost:3000/';
+
+        if(data.mediaUrl != null){
+          if(data.mediaUrl.match(/\.(jpg|jpeg|png|gif|svg)$/i)){
+          img.getElementById("uploadedImg").setAttribute("src", `${baseUrl}${data.mediaUrl}`)
+          img.style.display = "";
+        }else if(data.mediaUrl.match(/[^/]+(mp4|mov|avi|wmv|webm|mkv)$/)){
+          video.setAttribute("src", `${baseUrl}${data.mediaUrl}`)
+          video.style.display = "";
+        }
+        }
+      })
   })
 
 </script>
