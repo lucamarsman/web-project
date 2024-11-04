@@ -18,6 +18,13 @@
   </div>
 
 <div id="login-pop">
+    <div id="deleteConfirmModal" class="modal">
+      <div class="modal-content">
+        <h3>Are you sure you want to delete this post?</h3>
+        <button id="cancelDeleteBtn">Cancel</button>
+        <button id="confirmDeleteBtn">Yes, Delete</button>
+      </div>
+    </div>
 
     <div id="post-data">
     <h1 id="title"></h1>
@@ -60,32 +67,199 @@ let replyBtnMain = document.getElementById("post-reply");
   })
 
   document.addEventListener("DOMContentLoaded", () => {
-    let mediaUrl;
-    fetch(`/post-data/${postId}`)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("title").innerHTML = data.title
-        document.getElementById("content").innerHTML = data.body
-        document.getElementById("timestamp").innerHTML = data.timestamp
+  fetch(`/post-data/${postId}`)
+    .then(response => response.json())
+    .then(data => {
+      // Populate post data
+      const titleElement = document.getElementById("title");
+      const contentElement = document.getElementById("content");
 
-        const video = document.getElementById("uploadedVideo")
-        const img = document.getElementById("uploadedImg")
-        video.style.display = "none"
-        img.style.display = "none"
+      titleElement.innerHTML = data.title;
+      contentElement.innerHTML = data.body;
+      document.getElementById("timestamp").innerHTML = data.timestamp;
 
-        const baseUrl = 'http://localhost:3000/';
+      let mediaElement;
+      
+      // Handle media display
+      const video = document.getElementById("uploadedVideo");
+      const img = document.getElementById("uploadedImg");
+      video.style.display = "none";
+      img.style.display = "none";
 
-        if(data.mediaUrl != null){
-          if(data.mediaUrl.match(/\.(jpg|jpeg|png|gif|svg)$/i)){
-          img.setAttribute("src", `${baseUrl}${data.mediaUrl}`)
+      const baseUrl = 'http://localhost:3000/';
+      if (data.mediaUrl != null) {
+        if (data.mediaUrl.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
+          img.setAttribute("src", `${baseUrl}${data.mediaUrl}`);
           img.style.display = "";
-        }else if(data.mediaUrl.match(/[^/]+(mp4|mov|avi|wmv|webm|mkv)$/)){
-          video.setAttribute("src", `${baseUrl}${data.mediaUrl}`)
+          mediaElement = img;
+        } else if (data.mediaUrl.match(/\.(mp4|mov|avi|wmv|webm|mkv)$/)) {
+          video.setAttribute("src", `${baseUrl}${data.mediaUrl}`);
           video.style.display = "";
+          mediaElement = video;
         }
-        }
-      })
-  })
+      }
+
+      // Only display edit controls if the user is the owner
+      if (data.isOwner) {
+        const ownerControls = document.createElement("div");
+        ownerControls.setAttribute("id", "owner-controls");
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.setAttribute("id", "deleteBtn");
+        deleteBtn.innerText = "Delete";
+
+        const editBtn = document.createElement("button");
+        editBtn.setAttribute("id", "editBtn");
+        editBtn.innerText = "Edit";
+
+        const saveBtn = document.createElement("button");
+        saveBtn.setAttribute("id", "saveBtn");
+        saveBtn.innerText = "Save";
+        saveBtn.style.display = "none"; // Hide save button initially
+
+        const deleteConfirmModal = document.getElementById("deleteConfirmModal");
+        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+        const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+        deleteBtn.addEventListener("click", () => {
+          deleteConfirmModal.style.display = "block";
+        });
+
+        const mediaUpload = document.createElement("input");
+        mediaUpload.type = "file";
+        mediaUpload.id = "mediaUpload";
+        mediaUpload.accept = "image/*,video/*";
+        mediaUpload.style.display = "none";
+        mediaUpload.name = "mediaUpload"
+
+        mediaUpload.addEventListener('change', () => {
+          if (mediaUpload.files.length > 0) {
+            let uploadedMediaFile = mediaUpload.files[0]; 
+            const mediaUrl = URL.createObjectURL(uploadedMediaFile); 
+            if (uploadedMediaFile.type.startsWith('image/')) {
+              document.getElementById("uploadedImg").src = mediaUrl;
+              document.getElementById("uploadedImg").style.display = "block";
+              document.getElementById("uploadedVideo").style.display = "none";
+            } else if (uploadedMediaFile.type.startsWith('video/')) {
+              document.getElementById("uploadedVideo").src = mediaUrl;
+              document.getElementById("uploadedVideo").style.display = "block"; 
+              document.getElementById("uploadedImg").style.display = "none";
+            }
+          }
+        });
+
+        const mediaDeleteBtn = document.createElement("button")
+        mediaDeleteBtn.setAttribute("id", "delete-media")
+        mediaDeleteBtn.innerHTML = "X"
+        mediaDeleteBtn.style.display = "none"
+        document.getElementById("title").insertAdjacentElement("afterend", mediaDeleteBtn);
+
+        let mediaDeleted = false; // Flag to track if media is deleted
+        mediaDeleteBtn.addEventListener("click", () => {
+            const video = document.getElementById("uploadedVideo");
+            const img = document.getElementById("uploadedImg");
+
+            // Remove src attributes
+            video.removeAttribute("src");
+            img.removeAttribute("src");
+
+            // Hide media elements
+            video.style.display = "none";
+            img.style.display = "none";
+
+            // Hide delete button
+            mediaDeleteBtn.style.display = "none";
+            mediaDeleted = true;
+        });
+
+        confirmDeleteBtn.addEventListener("click", () => {
+          //Handle backend deletion here
+          fetch(`/post/${postId}`, {
+            method: "DELETE"
+          })
+          .then(response => {
+            if(!response.ok){
+              console.log("Something went wrong")
+            }
+            deleteConfirmModal.style.display = "none";
+            window.location.href = "/"
+          })
+        })
+
+        cancelDeleteBtn.addEventListener("click", () => {
+          deleteConfirmModal.style.display = "none";
+        })
+
+        editBtn.addEventListener("click", () => {
+          titleElement.contentEditable = "true";
+          contentElement.contentEditable = "true";
+          titleElement.classList.add("editable");
+          contentElement.classList.add("editable");
+
+          editBtn.style.display = "none";
+          saveBtn.style.display = "inline";
+          document.getElementById("mediaUpload").style.display = "block";
+
+          // Check if mediaElement has a src attribute
+          if ((mediaElement === img && img.hasAttribute("src")) || 
+              (mediaElement === video && video.hasAttribute("src"))) {
+            mediaDeleteBtn.style.display = "inline";
+          } else {
+            mediaDeleteBtn.style.display = "none";
+          }
+        });
+
+        // Save changes
+        saveBtn.addEventListener("click", () => {
+          const updatedData = new FormData();
+          updatedData.append("postId", postId);
+          updatedData.append("title", titleElement.innerText);
+          updatedData.append("content", contentElement.innerText);
+
+          const mediaUpload = document.getElementById("mediaUpload").files[0];
+          if (mediaUpload) {
+            updatedData.append("media", mediaUpload); // Add media file to FormData if uploaded
+            mediaDeleted = false; // Reset flag if a new media file is uploaded
+          }
+
+          // Add mediaDeleted flag to the form data
+          updatedData.append("mediaDeleted", mediaDeleted);
+
+          fetch(`/post/${postId}`, {
+            method: "PUT",
+            body: updatedData // Use FormData directly
+          })
+          .then(response => response.json())
+          .then(updatedPost => {
+            // Update elements with the latest data
+            titleElement.innerHTML = updatedPost.title;
+            contentElement.innerHTML = updatedPost.content;
+
+            // Disable editing mode
+            titleElement.contentEditable = "false";
+            contentElement.contentEditable = "false";
+            titleElement.classList.remove("editable");
+            contentElement.classList.remove("editable");
+
+            // Hide buttons
+            saveBtn.style.display = "none";
+            mediaDeleteBtn.style.display = "none";
+            editBtn.style.display = "inline";
+            document.getElementById("mediaUpload").style.display = "none";
+
+            // Reset mediaDeleted flag after save
+            mediaDeleted = false;
+          })
+          .catch(error => console.error("Error updating post:", error));
+        });
+
+        ownerControls.appendChild(editBtn);
+        ownerControls.appendChild(saveBtn);
+        ownerControls.appendChild(deleteBtn);
+        document.getElementById("post-data").appendChild(ownerControls);
+        document.getElementById("post-data").appendChild(mediaUpload);
+      }
+    });
+});
 </script>
 
 </body>

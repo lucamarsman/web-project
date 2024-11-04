@@ -75,6 +75,23 @@ exports.getPostData= async (req, res) => { // view post
     }
 };
 
+exports.saveChanges= async (req, res) => { // view post
+    try{
+        View.saveChanges(req, res)
+    }catch(error){
+        console.log(error)
+    }
+};
+
+exports.deletePost= async (req, res) => { // view post
+    try{
+        View.deletePost(req, res)
+    }catch(error){
+        console.log(error)
+    }
+};
+
+
 exports.getUserImage= async (req, res) => { // get user image
     try {
         View.getUserImage(req, res);
