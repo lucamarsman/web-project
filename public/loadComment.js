@@ -78,6 +78,7 @@ Adds a collapse button for comment threads with replies.
 Manages visibility of replies and their containers.
 */
 function appendComment(comment, depth) { // depth is used to handle nested replies
+    console.log(`Rendering comment ID: ${comment.comment_id}, Depth: ${depth}, isOwner: ${comment.isOwner}`); // Debug log
     const commentElement = document.createElement("div"); // Create a new comment element
     commentElement.classList.add("post-item", `reply-level-${depth}`); // Add classes for styling
     commentElement.setAttribute("data-post-id", comment.comment_id); // Set the comment ID as a data attribute
@@ -98,6 +99,8 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
             username.addEventListener("click", function () { // Add an event listener for clicking the username
                 window.location.href = `/view/${user.username}/profile`; // Redirect to the user's profile page
             });
+
+            console.log(user.image_path)
 
             const userImage = document.createElement("img"); // Create an <img> tag for the user's profile picture
             if(user.image_path == ""){ // If the user has no profile picture

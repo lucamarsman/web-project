@@ -119,11 +119,12 @@ class Comment { // comment model
 async function fetchReplies(parentId, uid) { // fetch replies for a comment helper function
     const replies = await queryDb('SELECT * FROM Comments WHERE parent_id = ?', [parentId]); // Fetch replies for a comment
     for (const reply of replies) { // Loop through each reply
-        reply.replies = await fetchReplies(reply.comment_id); // Fetch replies for each reply recursively
+        reply.replies = await fetchReplies(reply.comment_id, uid); // Fetch replies for each reply recursively
         reply.isOwner = false;
         if(uid == reply.user_id){
             reply.isOwner = true;
         }
+        console.log(replies)
     }
     return replies; // Return replies
 }
