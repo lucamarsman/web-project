@@ -245,12 +245,14 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
         const parentId = replyBtn.getAttribute('data-parent-id');
         const replyText = textarea.value;
         const postId = comment.post_id;
+        const replyDepth = depth + 1; // Increase depth by 1 for a reply
     
         const postUrl = '/comments/reply';
         const postData = {
             parentId: parentId,
             text: replyText,
-            postId: postId
+            postId: postId,
+            depth: replyDepth // Send depth information
         };
     
         fetch(postUrl, {
@@ -289,8 +291,6 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
         })
         .then(data => {
             if(data) {
-                console.log('Success:', data);
-                const replyDepth = data.depth || 1;
                 appendComment(data, replyDepth);
                 textarea.value = '';
                 commentForm.style.display = "none";
