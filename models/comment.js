@@ -33,6 +33,17 @@ class Comment { // comment model
         }
     }
 
+    static async updateComment(req, res){
+        const commentId = req.params.commentId
+        const newContent = req.body.newContent
+        try{
+            await queryDb("UPDATE Comments SET content = ? WHERE comment_id = ?", [newContent, commentId]);
+            res.status(200).json({newContent: newContent, message: "Comment updated successfully"})
+        }catch(error){
+            res.status(500).json({ message: 'Failed to update comment', error: error.message });
+        }
+    }
+
     static async replyToComment(req, res){ // reply to comment
         if(res.authenticated){ // if user is authenticated
             let decodedToken = jwt_decode(req.cookies['refresh-token']); // decode JWT token

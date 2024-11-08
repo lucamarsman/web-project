@@ -112,9 +112,59 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
             posterInfo.appendChild(userImage); // Append the user's profile picture to the poster info container
             posterInfo.appendChild(username); // Append the username to the poster info container
             if (comment.isOwner) {
+                const commentControls = document.createElement("div");
+                commentControls.classList.add("commentControls")
+
+                const editBtn = document.createElement("button");
+                editBtn.id = "comment-edit";
+                editBtn.innerHTML = "Edit";
+
+                editBtn.addEventListener("click", (e) => {
+                    e.target.style.display = "none"
+                    saveBtn.style.display = "inline-block"
+
+                    const postItem = e.target.closest('.post-item');
+                    const targetEditable = postItem.querySelector('p:not(.poster)');
+
+                    targetEditable.contentEditable = "true";
+                    targetEditable.classList.add("editable");
+                })
+
+                const saveBtn = document.createElement("button");
+                saveBtn.id = "comment-save"
+                saveBtn.innerHTML = "Save"
+                saveBtn.style.display = "none";
+
+                saveBtn.addEventListener("click", (e) => {
+                    e.target.style.display = "none"
+                    editBtn.style.display = "inline-block"
+
+                    const postItem = e.target.closest('.post-item');
+                    const targetEditable = postItem.querySelector('p:not(.poster)');
+
+                    const updatedData = {
+                        newContent: targetEditable.innerText
+                    };
+
+                    fetch(`/comments/${comment.comment_id}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(updatedData)
+                    })
+                    .then(response => response.json())
+                    .then(updatedComment => {
+                        targetEditable.innerText = updatedComment.newContent
+                        targetEditable.contentEditable = "false";
+                        targetEditable.classList.remove("editable");
+                    })
+                    .catch(error => console.error("Error updating comment:", error));
+                })
+
                 const deleteBtn = document.createElement("button");
                 deleteBtn.id = "comment-delete";
-                deleteBtn.innerHTML = "X";
+                deleteBtn.innerHTML = "Delete";
 
                 deleteBtn.addEventListener("click", () => {
                     deleteConfirmModal.style.display = "block";
@@ -142,7 +192,10 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
                     deleteConfirmModal.style.display = "none";
                 });
 
-                posterInfo.appendChild(deleteBtn);
+                commentControls.appendChild(editBtn);
+                commentControls.appendChild(saveBtn);
+                commentControls.appendChild(deleteBtn);
+                posterInfo.appendChild(commentControls);
             }
         })
         .catch(error => { // Catch any errors
