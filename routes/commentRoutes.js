@@ -10,5 +10,6 @@ router.post('/post/:postId', validateToken, commentLimiter, upload.none(), Comme
 router.get("/:postId", CommentController.fetchPostComments); // Fetch Comments for a Post
 router.get("/post-comment-history/:username", CommentController.fetchCommentHistory); // User's Comment History on Posts
 router.post('/reply', validateToken, commentLimiter, CommentController.replyToComment); // Add Comment to Post
+router.delete('/:commentId', validateToken, CommentController.deleteComment); // Add Comment to Post
 
 module.exports = router; // export router

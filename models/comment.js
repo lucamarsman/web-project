@@ -23,6 +23,16 @@ class Comment { // comment model
          }
     }
 
+    static async deleteComment(req, res){
+        const commentId = req.params.commentId
+        try{
+            await queryDb("DELETE FROM Comments WHERE comment_id = ?", [commentId]);
+            res.status(200).json({message: "Comment deleted successfully"})
+        }catch(error){
+            res.status(500).json({ message: 'Failed to delete comment', error: error.message });
+        }
+    }
+
     static async replyToComment(req, res){ // reply to comment
         if(res.authenticated){ // if user is authenticated
             let decodedToken = jwt_decode(req.cookies['refresh-token']); // decode JWT token
@@ -56,11 +66,17 @@ class Comment { // comment model
     
         // Fetch top-level comments
         const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ? AND parent_id IS NULL ORDER BY comment_id DESC LIMIT ? OFFSET ?', [postId, limit, offset]);
-    
+        let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
+        const uid = decodedToken.user.userid; // get user ID from decoded JWT token
+
         for (const comment of comments) { // Loop through each top-level comment
-            comment.replies = await fetchReplies(comment.comment_id); // Fetch replies for each top-level comment
+            comment.replies = await fetchReplies(comment.comment_id, uid); // Fetch replies for each top-level comment
+            comment.isOwner = false;
+            if(uid == comment.user_id){
+                comment.isOwner = true;
+            }
         }
-    
+
         res.json(comments); // Return comments as JSON
     }
 
@@ -100,10 +116,14 @@ class Comment { // comment model
 
 }
 
-async function fetchReplies(parentId) { // fetch replies for a comment helper function
+async function fetchReplies(parentId, uid) { // fetch replies for a comment helper function
     const replies = await queryDb('SELECT * FROM Comments WHERE parent_id = ?', [parentId]); // Fetch replies for a comment
     for (const reply of replies) { // Loop through each reply
         reply.replies = await fetchReplies(reply.comment_id); // Fetch replies for each reply recursively
+        reply.isOwner = false;
+        if(uid == reply.user_id){
+            reply.isOwner = true;
+        }
     }
     return replies; // Return replies
 }

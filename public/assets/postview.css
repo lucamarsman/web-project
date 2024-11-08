@@ -283,6 +283,14 @@ button:hover {
     float:right;
 }
 
+#comment-delete{
+    margin-left:auto;
+    border-radius: 100px;
+    height:50px;
+    width:50px;
+    padding:0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     #login-pop, #commentsContainer {

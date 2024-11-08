@@ -18,11 +18,19 @@
   </div>
 
 <div id="login-pop">
-    <div id="deleteConfirmModal" class="modal">
+    <div id="deletePostConfirmModal" class="modal">
       <div class="modal-content">
         <h3>Are you sure you want to delete this post?</h3>
-        <button id="cancelDeleteBtn">Cancel</button>
-        <button id="confirmDeleteBtn">Yes, Delete</button>
+        <button id="cancelPostDeleteBtn">Cancel</button>
+        <button id="confirmPostDeleteBtn">Yes, Delete</button>
+      </div>
+    </div>
+
+    <div id="deleteCommentConfirmModal" class="modal">
+      <div class="modal-content">
+        <h3>Are you sure you want to delete this comment?</h3>
+        <button id="cancelCommentDeleteBtn">Cancel</button>
+        <button id="confirmCommentDeleteBtn">Yes, Delete</button>
       </div>
     </div>
 
@@ -117,9 +125,9 @@ let replyBtnMain = document.getElementById("post-reply");
         saveBtn.innerText = "Save";
         saveBtn.style.display = "none"; // Hide save button initially
 
-        const deleteConfirmModal = document.getElementById("deleteConfirmModal");
-        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-        const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+        const deleteConfirmModal = document.getElementById("deletePostConfirmModal");
+        const confirmDeleteBtn = document.getElementById("confirmPostDeleteBtn");
+        const cancelDeleteBtn = document.getElementById("cancelPostDeleteBtn");
         deleteBtn.addEventListener("click", () => {
           deleteConfirmModal.style.display = "block";
         });

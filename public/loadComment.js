@@ -54,7 +54,6 @@ function loadComments(postId) {
             }
             if (comments.length > 0) {
                 comments.forEach(comment => {
-                    console.log(comment)
                     appendComment(comment, 0); // Render each top-level comment and its replies
                 });
                 currentPage++;
@@ -86,10 +85,13 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
     const posterInfo = document.createElement("div"); // Create a container for the poster's info
     posterInfo.classList.add("poster-info"); // Add classes for styling
 
+    const deleteConfirmModal = document.getElementById("deleteCommentConfirmModal");
+    const confirmDeleteBtn = document.getElementById("confirmCommentDeleteBtn");
+    const cancelDeleteBtn = document.getElementById("cancelCommentDeleteBtn");
+
     fetch(`/user/${comment.user_id}`) // Fetch the user's info
         .then(response => response.json()) // Parse the response as JSON
         .then(user => { // Pass the user object to the next .then()
-            console.log(user) // Log the user object
             const username = document.createElement("p"); // Create a <p> tag for the username
             username.textContent = user.username; // Set the username as the text content of the <p> tag
             username.classList.add("poster"); // Add classes for styling
@@ -106,10 +108,45 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
 
             posterInfo.appendChild(userImage); // Append the user's profile picture to the poster info container
             posterInfo.appendChild(username); // Append the username to the poster info container
+            if (comment.isOwner) {
+                const deleteBtn = document.createElement("button");
+                deleteBtn.id = "comment-delete";
+                deleteBtn.innerHTML = "X";
+
+                deleteBtn.addEventListener("click", () => {
+                    deleteConfirmModal.style.display = "block";
+
+                    // Remove previous click event to avoid duplicate handlers
+                    confirmDeleteBtn.replaceWith(confirmDeleteBtn.cloneNode(true));
+                    const newConfirmDeleteBtn = document.getElementById("confirmCommentDeleteBtn");
+
+                    newConfirmDeleteBtn.addEventListener("click", () => {
+                        fetch(`/comments/${comment.comment_id}`, {
+                            method: "DELETE"
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                console.log("Something went wrong");
+                            }
+                            deleteConfirmModal.style.display = "none";
+                            commentElement.remove(); // Remove comment from DOM
+                        })
+                        .catch(error => console.error("Error deleting comment:", error));
+                    });
+                });
+
+                cancelDeleteBtn.addEventListener("click", () => {
+                    deleteConfirmModal.style.display = "none";
+                });
+
+                posterInfo.appendChild(deleteBtn);
+            }
         })
         .catch(error => { // Catch any errors
             console.error('Failed to fetch user:', error); // Log the error
         });
+
+        
 
     commentElement.appendChild(posterInfo); // Append the poster info container to the comment element
 

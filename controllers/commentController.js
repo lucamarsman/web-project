@@ -9,6 +9,15 @@ exports.createComment = async (req, res) => { // create comment
     }
 };
 
+exports.deleteComment = async (req, res) => { // create comment
+    try {
+        Comment.deleteComment(req, res);
+    } catch (error) {
+        console.log("Something went wrong", error);
+        // Handle the error appropriately
+    }
+};
+
 exports.fetchPostComments = async (req, res) => { // fetch comments for a post
     try {
         Comment.fetchPostComments(req, res);
