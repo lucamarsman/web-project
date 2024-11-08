@@ -74,12 +74,16 @@ class Comment { // comment model
         const limit = 5; // number of top-level comments per page
         const page = req.query.page ? parseInt(req.query.page) : 1; // get page number from request query
         const offset = (page - 1) * limit; // calculate offset
+        let uid = null;
     
         // Fetch top-level comments
         const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ? AND parent_id IS NULL ORDER BY comment_id DESC LIMIT ? OFFSET ?', [postId, limit, offset]);
-        let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
-        const uid = decodedToken.user.userid; // get user ID from decoded JWT token
-
+        
+        if(res.authenticated){
+            const decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
+            uid = decodedToken.user.userid; // get user ID from decoded JWT token
+        }
+        
         for (const comment of comments) { // Loop through each top-level comment
             comment.replies = await fetchReplies(comment.comment_id, uid); // Fetch replies for each top-level comment
             comment.isOwner = false;

@@ -66,6 +66,7 @@ button:hover {
 /* Post Data Styling */
 #login-pop {
     max-width: 800px;
+    min-height:100vh;
     margin: 20px auto;
     background-color: white;
     padding: 20px;
@@ -285,6 +286,24 @@ button:hover {
 
 .commentControls{
     margin-left:auto;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+}
+
+footer{
+    min-height:95.2px;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    background-color: #a16dc1;
+    color: white;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
+    align-items: center;
 }
 
 

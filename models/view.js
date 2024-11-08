@@ -110,13 +110,15 @@ class View { // view model
         const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ?', [postId]); // fetch comments from database using post ID
 
         const posterId = await queryDb('SELECT user_id FROM Posts WHERE post_id = ?', [postId]);
-        let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
-        const uid = decodedToken.user.userid; // get user ID from decoded JWT token
-
         let isOwner = false;
+       
+        if(res.authenticated){
+            let decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
+            const uid = decodedToken.user.userid; // get user ID from decoded JWT token
 
-        if(posterId[0].user_id == uid){
-            isOwner = true;
+            if(posterId[0].user_id == uid){
+                isOwner = true;
+            }
         }
 
         if (post && post.length > 0) { // if post exists
