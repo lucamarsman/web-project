@@ -127,6 +127,21 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
                     const targetEditable = postItem.querySelector('p:not(.poster)');
 
                     targetEditable.contentEditable = "true";
+                    
+                    const maxLength = 500;
+                    targetEditable.addEventListener("input", () => {
+                        if (targetEditable.innerText.length > maxLength) {
+                            targetEditable.innerText = targetEditable.innerText.slice(0, maxLength);
+                            // Move cursor to the end
+                            const range = document.createRange();
+                            const selection = window.getSelection();
+                            range.selectNodeContents(targetEditable);
+                            range.collapse(false);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    });
+
                     targetEditable.classList.add("editable");
                 })
 
@@ -320,7 +335,6 @@ function appendComment(comment, depth) { // depth is used to handle nested repli
             const usernameEl = commentElement.querySelector('.poster');
             if (usernameEl) {
                 // Prepend '@username ' to the textarea
-                textarea.value = `@${usernameEl.textContent.trim()} `;
                 textarea.focus(); // Focus the textarea to start typing immediately
             }
         }
