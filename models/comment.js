@@ -79,6 +79,7 @@ class Comment { // comment model
         // Fetch top-level comments
         const comments = await queryDb('SELECT * FROM Comments WHERE post_id = ? AND parent_id IS NULL ORDER BY comment_id DESC LIMIT ? OFFSET ?', [postId, limit, offset]);
         
+        console.log(res.authenticated)
         if(res.authenticated){
             const decodedToken = jwt_decode(req.cookies['refresh-token']) // decode JWT token
             uid = decodedToken.user.userid; // get user ID from decoded JWT token
@@ -139,7 +140,6 @@ async function fetchReplies(parentId, uid) { // fetch replies for a comment help
         if(uid == reply.user_id){
             reply.isOwner = true;
         }
-        console.log(replies)
     }
     return replies; // Return replies
 }

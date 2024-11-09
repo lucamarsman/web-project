@@ -21,6 +21,11 @@ body {
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
 }
 
+main{
+    flex: 1;
+    padding: 20px;
+}
+
 #main-nav button {
     background-color: #3f51b5;
     color: white;
