@@ -102,6 +102,12 @@ button:hover {
     padding: 10px;
 }
 
+#buttonContainer{
+    display:flex;
+    gap:2%;
+    justify-content: center;
+}
+
 /* CSS for Profile Top Section */
 #profile-top {
     display: flex;
@@ -140,7 +146,7 @@ button:hover {
     padding: 10px;
     border: 1px solid #ddd;
     resize: none;
-    
+    outline:none;
 }
 
 /* Active Button Highlight */

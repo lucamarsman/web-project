@@ -117,7 +117,9 @@ button:hover {
 .post-item {
     background-color: #ffffff;
     word-wrap: break-word;
-    padding: 2%;
+    padding-top:2%;
+    padding-left:2%;
+    padding-right:2%;
     border-radius: 5px;
     margin-bottom: 10px;
     
@@ -136,12 +138,24 @@ button:hover {
     display: none;
 }
 
+#post-reply:hover{
+    cursor: pointer;
+}
+
 #comment-reply p {
     display: inline; 
 }
 
 #comment-reply img {
     float:right;
+}
+
+#comment-reply{
+   padding-bottom:3%;
+}
+
+.comment-form{
+    padding-bottom:3%;
 }
 
 #collapseButton{
@@ -222,7 +236,7 @@ button:hover {
 
 .poster-info{
     display:flex;
-    gap:30px;
+    gap:2%;
 }
 
 #collapseButton:hover{
