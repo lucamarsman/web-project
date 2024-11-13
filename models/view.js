@@ -125,7 +125,7 @@ class View { // view model
             res.json({
                 title: post[0].title,
                 mediaUrl: post[0].media_path,
-                body: post[0].content,
+                body: post[0].content.replace(/\n/g, '<br>'),
                 timestamp: post[0].timestamp,
                 comments: comments,
                 isOwner: isOwner
@@ -168,7 +168,7 @@ class View { // view model
             res.status(200).json({
                 postId: postId,
                 title: newTitle,
-                content: newBody,
+                content: newBody.replace(/\n/g, '<br>'),
                 mediaUrl: mediaPath || req.body.mediaSrc // Send back the new or existing media URL
             });
         } catch (error) {
