@@ -104,6 +104,7 @@ function loadPosts(searchQuery = '') { // Function that loads posts to front pag
                     if(post.media_path != null){
                       if(post.media_path.match(/\.(jpg|jpeg|png|gif|svg)$/i)){
                         uploadedMedia = document.createElement("img")
+                        uploadedMedia.classList.add("post-media")
                         uploadedMedia.src = post.media_path;
                       }else if(post.media_path.match(/[^/]+(mp4|mov|avi|wmv|webm|mkv)$/)){
                         uploadedMedia = document.createElement("video")

@@ -70,8 +70,8 @@ button:hover {
 
 /* Post Data Styling */
 #login-pop {
-    max-width: 800px;
-    min-height:100vh;
+    min-width: 800px;
+    max-width:50%;
     margin: 20px auto;
     background-color: #e3e4f1;;
     padding: 20px;
