@@ -8,10 +8,10 @@
 </head>
 <body>  
 
-  <div class="wrapper">
+<div class="wrapper">
   <div id = "main">
     <header id = "main-nav">
-      <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/logo.png"></a>
+      <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/Hive.svg"></a>
       <div id="button-container">
         <button id = "btn1" onclick="window.location.href='/register'">Sign Up</button>
         <button id = "btn2" onclick="window.location.href='/login'">Log in</button>
@@ -19,32 +19,28 @@
     </header>
   </div>
 
-<div id="login-pop">
+  <div id="login-pop">
 
-    <div id="post-data">
-    <h1 id="title"></h1>
-    <img id="uploadedImg">
-    <video id ="uploadedVideo" controls></video>
-    <p id="content"></p>
-    <div id ="direct-reply"><p id="timestamp"></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
-    </div>
+      <div id="post-data">
+      <h1 id="title"></h1>
+      <img id="uploadedImg">
+      <video id ="uploadedVideo" controls></video>
+      <p id="content"></p>
+      <div id ="direct-reply"><p id="timestamp"></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
+      </div>
 
-    <div id = "new-comment">
-      <form id = "comment-form" method = "POST">
-      <textarea id ="newcomment" maxlength="500" name="comment"></textarea>
-      <button id="post-comment" type = "submit">Post</button>
-      </form>
-    </div>
+      <div id = "new-comment">
+        <form id = "comment-form" method = "POST">
+        <textarea id ="newcomment" maxlength="500" name="comment"></textarea>
+        <button id="post-comment" type = "submit">Post</button>
+        </form>
+      </div>
 
-    <div id="comments">
-      <div id="commentsContainer"></div>
-    </div>
+      <div id="comments">
+        <div id="commentsContainer"></div>
+      </div>
 
-</div>
-
-<footer>
-  <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
-</footer>
+  </div>
 
 </div>
 

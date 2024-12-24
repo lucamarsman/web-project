@@ -5,7 +5,7 @@ body {
     color: #333;
     margin: 0;
     padding: 0;
-    background-image: url('/public/assets/images/low-poly-grid-haikei.svg');
+    background-color:white;
     background-size: cover;      
     background-repeat: no-repeat; 
     background-attachment: fixed;
@@ -17,10 +17,11 @@ body {
     display: flex;
     justify-content: space-between; /* Align items to the edges */
     align-items: center; /* Vertically center the items */
-    background-color: #a16dc1;
+    background-color: white;
     color: white;
     padding: 10px 20px;
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
+    height:60px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2); 
 }
 
 button {
@@ -43,8 +44,7 @@ button:hover {
 }
 
 #logo{
-    width: 8%;
-    border-radius: 100px;
+    width: 5%;
 }
 
 #logo:hover{
@@ -52,8 +52,8 @@ button:hover {
 }
 
 #logo > img {
-    max-height: 100px;
-    border-radius:100px;
+    max-height: 30px;
+    border-radius:30px;
 }
 
 .poster {

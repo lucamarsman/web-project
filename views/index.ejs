@@ -8,12 +8,15 @@
 </head>
 <body>
 
-  <div class="wrapper">
+<div class="wrapper">
     <header id="main-nav">
-      <img src="/public/assets/images/logo.png" id="logo">
+      <div id="brand">
+        <img src="/public/assets/images/hive-logo.svg" id="logo">
+        <img src="/public/assets/images/Hive.svg" id="brand-text">
+      </div>
       <div class="search-nav">
         <form action="" id="searchForm" method="POST">
-          <input type="text" id="search-bar" placeholder="Search.." name="search_val">
+          <input type="text" id="search-bar" placeholder="Search Hive" name="search_val">
           <button type="submit" id="search-button" name="action" value="search">Go</button>
           <button id="create-post" type="button" name="action" value="post" onclick="window.location.href='/new-post'">New Post</button>
         </form>
@@ -25,14 +28,118 @@
     </header>
 
     <main id="main-content">
-      <div id="postsContainer"></div>
+      <div id="content-start">
+        <a id="home-button" class="active"><span class="span-home"><img src="/public/assets/images/home-active.svg">Home</span></a>
+        <a id="popular-button"><span class="span-popular"><img src="/public/assets/images/popular-inactive.svg">Popular</span></a>
+        <hr>
+        <button class="content-start-button-1"><span class="span-start">Recent<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-1"></span></button>
+          <div id="dropdown-menu-recent" class="visible">
+            <a href="#">Option 1</a>
+            <a href="#">Option 2</a>
+            <a href="#">Option 3</a>
+          </div>
+        <hr>
+        <button class="content-start-button-2"><span class="span-start">Topics<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-2"></span></button>
+          <div id="dropdown-menu-topics" class="visible">
+            <a href="#">Science</a>
+            <a href="#">Sports</a>
+            <a href="#">Gaming</a>
+            <a href="#">Pop Culture</a>
+            <a href="#">Movies & TV</a>
+            <a href="#">Arts</a>
+            <a href="#">Technology</a>
+            <a href="#">Business</a>
+            <a href="#">Fashion & Beauty</a>
+            <a href="#">Music</a>
+            <a href="#">Q&As</a>
+            <a href="#">Food & Drink</a>
+          </div>
+        <hr>
+        <button class="content-start-button-3"><span class="span-start">Resources<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-3"></span></button>
+          <div id="dropdown-menu-resources" class="visible">
+            <a href="#">Option 1</a>
+            <a href="#">Option 2</a>
+            <a href="#">Option 3</a>
+          </div>
+      </div>
+
+      <div id="postsContainer">
+        <hr>
+      </div>
+
+      <div id="content-end">
+        <h3 id="communities-header">POPULAR COMMUNITIES</h3>
+        <div id="popular-communities-container"></div>
+      </div>
     </main>
 
-    <footer>
-      <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
-    </footer>
   </div>
 
   <script src="public/loadPost.js"></script>
+  <script>
+    const homeBtn = document.getElementById("home-button");
+    const popularBtn = document.getElementById("popular-button");
+    const dropdownMenuRecent = document.getElementById('dropdown-menu-recent');
+    const dropdownMenuTopics = document.getElementById('dropdown-menu-topics');
+    const dropdownMenuResources = document.getElementById('dropdown-menu-resources');
+    const dropdownToggle1 = document.querySelector(".content-start-button-1");
+    const dropdownToggle2 = document.querySelector(".content-start-button-2");
+    const dropdownToggle3 = document.querySelector(".content-start-button-3");
+    const dropdownArrow1 = document.querySelector(".dropdown-arrow-1");
+    const dropdownArrow2 = document.querySelector(".dropdown-arrow-2");
+    const dropdownArrow3 = document.querySelector(".dropdown-arrow-3");
+
+    homeBtn.addEventListener("click", () => {
+      if(!homeBtn.classList.contains("active")){
+        homeBtn.classList.add("active");
+        popularBtn.classList.remove("active");
+      }
+    })
+
+    popularBtn.addEventListener("click", () => {
+      if(!popularBtn.classList.contains("active")){
+        popularBtn.classList.add("active");
+        homeBtn.classList.remove("active");
+      }
+    })
+
+    dropdownToggle1.addEventListener('click', () => {
+        if (dropdownMenuRecent.classList.contains('visible')) {
+            dropdownMenuRecent.classList.remove('visible');
+            dropdownMenuRecent.classList.add('hidden');
+            dropdownArrow1.classList.add("rotate-arrow");
+        } else {
+            dropdownMenuRecent.classList.remove('hidden');
+            dropdownMenuRecent.classList.add('visible');
+            dropdownArrow1.classList.remove("rotate-arrow");
+        }
+    });
+
+    dropdownToggle2.addEventListener('click', () => {
+        if (dropdownMenuTopics.classList.contains('visible')) {
+            dropdownMenuTopics.classList.remove('visible');
+            dropdownMenuTopics.classList.add('hidden');
+            dropdownArrow2.classList.add("rotate-arrow");
+        } else {
+            dropdownMenuTopics.classList.remove('hidden');
+            dropdownMenuTopics.classList.add('visible');
+            dropdownArrow2.classList.remove("rotate-arrow");
+        }
+    });
+
+    dropdownToggle3.addEventListener('click', () => {
+        if (dropdownMenuResources.classList.contains('visible')) {
+            dropdownMenuResources.classList.remove('visible');
+            dropdownMenuResources.classList.add('hidden');
+            dropdownArrow3.classList.add("rotate-arrow");
+        } else {
+            dropdownMenuResources.classList.remove('hidden');
+            dropdownMenuResources.classList.add('visible');
+            dropdownArrow3.classList.remove("rotate-arrow");
+        }
+    });
+
+
+  </script>
 </body>
 </html>
