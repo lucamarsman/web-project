@@ -416,4 +416,36 @@ hr {
     flex-direction: column;
     padding-left:30px;
 }
+
+#communityContainer{
+    padding-left:10%;
+    padding-right:10%;
+    width:100%;
+    display:flex;
+    flex-direction: column;
+}
+
+#community-list{
+    height:90%;
+    width:100%;
+}
+
+#community-section-header{ 
+    text-align: center;
+}
+
+#top-communities{
+    margin:0;
+    margin-top:5px;
+    margin-bottom:5px;
+    font-size:16px;
+}
+
+#header-subtext{
+    margin:0;
+    margin-top:5px;
+    margin-bottom:5px;
+    font-weight:100;
+    color:#5C6C74;
+}
   

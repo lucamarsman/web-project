@@ -101,5 +101,9 @@ exports.getUserImage= async (req, res) => { // get user image
     }
 };
 
+exports.renderCommunityPage = async (req, res) => {
+    res.render('communities.ejs');
+}
+
 
 
