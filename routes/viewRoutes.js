@@ -44,7 +44,9 @@ router.get('/post-data/:postId', validateToken, ViewController.getPostData);
 
 router.get(`/profile/:username/profile-image`, validateToken, ViewController.getUserImage); // Get user profile image
 
-router.get('/communities', ViewController.renderCommunityPage)
+router.get('/communities', ViewController.renderCommunityPage);
+
+router.get('/community-create', validateToken, ViewController.renderCommunityCreatePage);
 
 
 

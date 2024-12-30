@@ -22,24 +22,25 @@
       </form>
     </div>
     <div id="button-container">
-      <button id="btn1" onclick="window.location.href='/register'">Sign Up</button>
-      <button id="btn2" onclick="window.location.href='/login'">Log In</button>
+      <button id="btn1" onclick="window.location.href='/profile'">Profile</button>
+      <button id="btn2" onclick="window.location.href='/logout'">Log Out</button>
     </div>
   </header>
 
   <div id="login-pop">
     <div id="post-area">
-      <form action="/posts/new-post" id = "form" method = "POST" enctype="multipart/form-data">
-        <input type='text' id = 'post-title' class = 'posty' placeholder="Title..." name='post_title' maxLength="50" required>
+      <form action="/communities/new-community" id = "form" method = "POST" enctype="multipart/form-data">
+        <input type='text' id = 'post-title' class = 'posty' placeholder="Community Name" name='post_title' maxLength="50" required>
       <br>
-        <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Body..." name='post_body' maxlength="10000" required></textarea>
+        <textarea id = 'post-body' class = 'posty' rows = "1" placeholder="Description/Rules" name='post_body' maxlength="10000" required></textarea>
       <br>
+      <label>Community Logo:</label>
       <input type="file" accept="image/*, video/*" id="mediaUpload" name="mediaUpload">
       <br>
       <img id="uploadedImg">
       <video id="uploadedVideo" controls></video>
       <br>
-        <button type = 'submit' id = "post-push" class = 'posty'>Post</button>
+        <button type = 'submit' id = "post-push" class = 'posty'>Create Community</button>
         <div id="inline-toast"></div>
     </form>
     </div>
@@ -76,10 +77,6 @@
   }
 });
 
-//TODO on submit add uploaded media to form data to handle on back end
-//File is uploaded to uploads folder on server
-//Create new mediaUrl column in Posts and insert the url of the media if media was uploaded
-//When loading posts display the correpsondign media of each post
   document.getElementById('form').addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent the default form submission
 

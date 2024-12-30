@@ -7,61 +7,107 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
-
   <div class="wrapper">
-  <div id = "main">
-    <header id = "main-nav">
-      <a onclick="window.location.href='/'" id="logo"><img src="/public/assets/images/logo.png"></a>
+    <header id="main-nav">
+      <div id="brand">
+        <img src="/public/assets/images/hive-logo.svg" id="logo">
+        <img src="/public/assets/images/Hive.svg" id="brand-text">
+      </div>
+      <div class="search-nav">
+        <form action="" id="searchForm" method="POST">
+          <input type="text" id="search-bar" placeholder="Search Hive" name="search_val">
+          <button type="submit" id="search-button" name="action" value="search">Go</button>
+          <button id="create-post" type="button" name="action" value="post" onclick="window.location.href='/new-post'">New Post</button>
+        </form>
+      </div>
       <div id="button-container">
-        <button id = "btn2" onclick="window.location.href='/user/logout'">Log Out</button>
+        <button id="btn1" onclick="window.location.href='/register'">Sign Up</button>
+        <button id="btn2" onclick="window.location.href='/login'">Log In</button>
       </div>
     </header>
-  </div>
 
-<div id="login-pop">
-    <div id="deletePostConfirmModal" class="modal">
-      <div class="modal-content">
-        <h3>Are you sure you want to delete this post?</h3>
-        <button id="cancelPostDeleteBtn">Cancel</button>
-        <button id="confirmPostDeleteBtn">Yes, Delete</button>
+    <main id="main-content">
+      <div id="content-start">
+        <a id="home-button" class="active"><span class="span-home"><img src="/public/assets/images/home-active.svg">Home</span></a>
+        <a id="popular-button"><span class="span-popular"><img src="/public/assets/images/popular-inactive.svg">Popular</span></a>
+        <hr>
+        <button class="content-start-button-1"><span class="span-start">Recent<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-1"></span></button>
+          <div id="dropdown-menu-recent" class="visible">
+            <a href="#">Option 1</a>
+            <a href="#">Option 2</a>
+            <a href="#">Option 3</a>
+          </div>
+        <hr>
+        <button class="content-start-button-2"><span class="span-start">Topics<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-2"></span></button>
+          <div id="dropdown-menu-topics" class="visible">
+            <a href="#">Science</a>
+            <a href="#">Sports</a>
+            <a href="#">Gaming</a>
+            <a href="#">Pop Culture</a>
+            <a href="#">Movies & TV</a>
+            <a href="#">Arts</a>
+            <a href="#">Technology</a>
+            <a href="#">Business</a>
+            <a href="#">Fashion & Beauty</a>
+            <a href="#">Music</a>
+            <a href="#">Q&As</a>
+            <a href="#">Food & Drink</a>
+          </div>
+        <hr>
+        <button class="content-start-button-3"><span class="span-start">Resources<img src="/public/assets/images/dropdown-arrow-up.svg" class="dropdown-arrow-3"></span></button>
+          <div id="dropdown-menu-resources" class="visible">
+            <a href="#">Option 1</a>
+            <a href="#">Option 2</a>
+            <a href="#">Option 3</a>
+          </div>
       </div>
-    </div>
 
-    <div id="deleteCommentConfirmModal" class="modal">
-      <div class="modal-content">
-        <h3>Are you sure you want to delete this comment?</h3>
-        <button id="cancelCommentDeleteBtn">Cancel</button>
-        <button id="confirmCommentDeleteBtn">Yes, Delete</button>
-      </div>
-    </div>
-
-    <div id="post-data">
-    <h1 id="title"></h1>
-    <img id="uploadedImg">
-    <video id ="uploadedVideo" controls></video>
-    <p id="content"></p>
-    <div id ="direct-reply"><p id="timestamp"></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
-    </div>
-
-    <div id = "new-comment">
-      <form id="comment-form" method="POST">
-        <textarea id="newcomment" maxlength="500" name="comment"></textarea>
-        <button id="post-comment" type="submit">Post</button>
-        <div class="inline-toast" id="inline-toast-main" style="display: none;"></div>
-      </form>
-    </div>
-
-    <hr>
-
-    <div id="comments">
-      <div id="commentsContainer"></div>
-    </div>
+      <div id="postsContainer">
+        <div id="deletePostConfirmModal" class="modal">
+          <div class="modal-content">
+            <h3>Are you sure you want to delete this post?</h3>
+            <button id="cancelPostDeleteBtn">Cancel</button>
+            <button id="confirmPostDeleteBtn">Yes, Delete</button>
+          </div>
+        </div>
     
-</div>
+        <div id="deleteCommentConfirmModal" class="modal">
+          <div class="modal-content">
+            <h3>Are you sure you want to delete this comment?</h3>
+            <button id="cancelCommentDeleteBtn">Cancel</button>
+            <button id="confirmCommentDeleteBtn">Yes, Delete</button>
+          </div>
+        </div>
+        <div id="post-info">
+          <div id="post-data">
+          <h1 id="title"></h1>
+          <img id="uploadedImg">
+          <video id ="uploadedVideo" controls></video>
+          <p id="content"></p>
+          <div id ="direct-reply"><p id="timestamp"></p> <img id = "post-reply" src="/public/assets/images/reply.svg"></div>
+          </div>
+    
+          <div id = "new-comment">
+            <form id = "comment-form" method = "POST">
+            <textarea id ="newcomment" maxlength="500" name="comment"></textarea>
+            <button id="post-comment" type = "submit">Post</button>
+            </form>
+          </div>
+    
+          <div id="comments">
+            <div id="commentsContainer"></div>
+          </div>
+        </div>
 
-<footer>
-  <p>&copy; 2024 ConvoSphere. All rights reserved.</p>
-</footer>
+      </div>
+
+      <div id="content-end">
+        <h3 id="communities-header">POPULAR COMMUNITIES</h3>
+        <div id="popular-communities-container"></div>
+      </div>
+    </main>
+
+  </div>
 
 </div>
 

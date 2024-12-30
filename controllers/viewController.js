@@ -105,5 +105,12 @@ exports.renderCommunityPage = async (req, res) => {
     res.render('communities.ejs');
 }
 
+exports.renderCommunityCreatePage = async (req, res) => {
+    if(res.authenticated){
+        res.render('community-create.ejs');
+    }else{
+        res.redirect("/login");
+    }
+}
 
 
